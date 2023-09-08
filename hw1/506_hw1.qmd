@@ -1,0 +1,180 @@
+---
+title: "506_hw1"
+author: "Xingjian Liu"
+format: html
+editor: visual
+---
+
+# Problem 1 - Wine data
+
+From <https://archive.ics.uci.edu/dataset/109/wine>, download the data set about wine. It contains two files of interest - "wine.data" with the actual rectangular data set, and "wine.names" with some information about the data. (Both files are plain-text - you can open then in any text editor, including directly in RStudio.)
+
+## a. Import the data into a `data.frame` in R. Use the information in the "wine.names" file to give appropriate column names. (Note: Downloading and unzipping the file can take place outside of your submitted document, but importing the file should be in the submission.)
+
+```{r}
+wine <- read.csv('wine/wine.data',header=FALSE)
+head(wine)
+```
+
+```{r}
+#   wine.names: name of 13 attributes
+#   1) Alcohol
+#  	2) Malic acid
+#  	3) Ash
+# 	4) Alcalinity of ash  
+#  	5) Magnesium
+# 	6) Total phenols
+#  	7) Flavanoids
+#  	8) Nonflavanoid phenols
+#  	9) Proanthocyanins
+# 	10)Color intensity
+#  	11)Hue
+#  	12)OD280/OD315 of diluted wines
+#  	13)Proline 
+
+wine <- setNames(wine, c('Class','Alcohol','Malic acid','Ash','Alcalinity of ash','Magnesium','Total phenols','Flavanoids','Nonflavanoid phenols','Proanthocyanins','Color intensity','Hue','OD280/OD315 of diluted wines','Proline'))
+head(wine)
+```
+
+## b. The data contains information on three different classes of wine. Ensure that the number of wines within each class is correct as reported in "wine.names".
+
+```{r}
+table(wine$Class)
+```
+
+```         
+It is correspondent with that reported in 'wine.names' file
+```
+
+## c. Use the data to answer the following questions:
+
+1.  The wine with the highest alcohol content belongs to which class?
+
+    ```{r}
+    sprintf('The wine with the highest alcohol content belongs to Class %d',wine[which(wine$Alcohol == max(wine$Alcohol)),'Class'])
+    ```
+
+2.  The wine with the lowest alcohol content belongs to which class?
+
+    ```{r}
+    sprintf('The wine with the lowest alcohol content belongs to Class %d', wine[which(wine$Alcohol == min(wine$Alcohol)),'Class'])
+    ```
+
+3.  [German beers have, on average, 114 mg/l of magnesium](https://mgwater.com/beer.shtml). How many of these wines have higher levels of magnesium than that? (You may assume that the magnesium reported in the data is in the same units.)
+
+    ```{r}
+    sprintf('%d wines have higher levels of magnesium than 114 mg/l',nrow(wine[which(wine$Magnesium > 114),]))
+    ```
+
+Within each class, how many wines have higher levels of magnesium than average German beer?
+
+```{r}
+sprintf('Within class 1, there are %d wines that have higher levels of magnesium than average German bee', nrow(wine[which(wine$Magnesium > 114 & wine$Class == 1),]))
+
+sprintf('Within class 2, there are %d wines that have higher levels of magnesium than average German bee', nrow(wine[which(wine$Magnesium > 114 & wine$Class == 2),]))
+
+sprintf('Within class 3, there are %d wines that have higher levels of magnesium than average German bee', nrow(wine[which(wine$Magnesium > 114 & wine$Class == 3),]))
+```
+
+## d. Create a table identifying the average value of each variable, providing one row for the overall average, and one row per class with class averages. (This table does not need to be "fancy" but should clearly identify what each value represents.)
+
+```{r}
+wine_d <- wine
+wine_d1 = wine[which(wine$Class==1),]
+wine_d2 = wine[which(wine$Class==2),]
+wine_d3 = wine[which(wine$Class==3),]
+
+for (name in names(wine_d)){
+  if (name != 'Class') {
+    wine_d[179,name] = mean(wine[[name]])
+  } 
+  else {next}
+}
+
+for (name in names(wine_d1)){
+  if (name != 'Class') {
+    wine_d[180,name] = mean(wine_d1[[name]])
+  } 
+  else {next}
+}
+
+for (name in names(wine_d2)){
+  if (name != 'Class') {
+    wine_d[181,name] = mean(wine_d2[[name]])
+  } 
+  else {next}
+}
+
+for (name in names(wine_d3)){
+  if (name != 'Class') {
+    wine_d[182,name] = mean(wine_d3[[name]])
+  } 
+  else {next}
+}
+  
+
+table_d <- wine_d[179:182,-1]
+row.names(table_d) <- c('overall_avg','class1_avg','class2_avg','class3_avg')
+table_d
+```
+
+## e. Carry out a series of t-tests to examine whether the level of Ash differs across the three classes. Present the R output and interpret the results. (You may use an existing R function to carry out the t-test, or for **minor extra credit**, manually write your own calculation of the t-test p-values.)
+
+```{r}
+t_test_12 = t.test(wine_d1$Ash, wine_d2$Ash)
+t_test_23 = t.test(wine_d2$Ash, wine_d3$Ash)
+t_test_13 = t.test(wine_d1$Ash, wine_d3$Ash)
+
+print(t_test_12)
+print(t_test_23)
+print(t_test_13)
+```
+
+#### **Interpretation:**
+
+Parameter explanation:
+
+1.  t: refers to 't-value' that measures the difference between two sample means.
+
+    $$t = \frac{\bar{X}_1 - \bar{X}_2}{\sqrt{\frac{s_1^2}{n_1} + \frac{s_2^2}{n_2}}}$$
+
+2.  df: refers to "degrees of freedom." It is adjusted in Welch t-test to account for the unequal variances and sample sizes.
+
+3.  p-value: Smaller p-value suggests higher probability of rejecting the null hypothesis. Typically we can reject the null hypothesis if p \<= 0.05
+
+    $$p = P(T>|t|)
+    $$
+
+4.  alternative hypothesis: a statement that contradicts the null hypothesis, which means the difference between two sample means is great.
+
+5.  95 percent confidence interval: a 95 percent confidence interval can be written as
+
+    $$
+    \left( \bar{x} -  \lambda \times \frac{s}{\sqrt{n}}, \bar{x} + \lambda \times \frac{s}{\sqrt{n}} \right)
+    $$
+
+where λ is determined by $P(|T|<\lambda) = 5%$
+
+We can see from the t-test results above that the p-value of t_test_13 is much bigger than that of t_test_12 and t_test_23. That's simply because the difference between the group mean of class1_ash and class3_ash is much smaller than that of the other two. And also, for t_test_12 and t_test_23, since the p-value is much smaller than 5%, we can reject the null hypothesis.
+
+# Problem 2 - Perfect Powers
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
