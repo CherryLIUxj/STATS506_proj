@@ -1,5 +1,5 @@
 ---
-title: "506_hw1"
+title: "STATS506_hw1"
 author: "Xingjian Liu"
 format: html
 editor: visual
