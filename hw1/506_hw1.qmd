@@ -159,6 +159,88 @@ We can see from the t-test results above that the p-value of t_test_13 is much b
 
 # Problem 2 - Perfect Powers
 
+## a. Write a function \"`isPerfectPower`\" to identify whether a given integer is a perfect power for a given power. Do not use any existing functions to check this; do so with arithmetic.
+
+```{r}
+isPerfectPower <- function(integer, power){
+  root <- integer^(1/power)
+  if (all.equal(root,floor(root)) == TRUE){
+    # Note: floor(root) returns integer but root is double.             Make sure do not use '==' in this case!
+    return (list(isPerfect=TRUE, root=root))
+  }
+  else {
+    return (list(isPerfect=FALSE, root='No integer root'))
+    }
+}
+```
+
+```{r}
+isPerfectPower(27, power = 3)$isPerfect == TRUE
+```
+
+## b. Demonstrate your function works. Do so by writing another function \"`findRootPower`\" which calls your first function, using a loop to identify both the root and power. Your function should identify the *lowest* power for which the input is perfect
+
+### \*The choice of maximum testing power:
+
+Suppose an integer can be written as $\alpha \times 10^n$ , where $n=floor(log_{10}(integer))$ , then we get
+
+$$
+\alpha \times 10^n < 10^{n+1} < 2^{4(n+1)} 
+$$
+
+As 2 is the smallest possible root (i.e. any root bigger than 2 will need smaller power to generate the same integer), we conclude that if we can not find a power within \[2,4(n+1)\] , then the integer is not a perfect power.
+
+So we set 2 as the initial power to try and 4(n+1) as the final.
+
+```{r}
+power = 2
+find = FALSE
+findRootPower <- function(integer){
+  max_power = 4*floor(log10(integer))+4
+  while (!find && power<=max_power){
+    if (isPerfectPower(integer, power)$isPerfect == TRUE){
+      find = TRUE
+      root = isPerfectPower(integer, power)$root
+      return(sprintf('%.0f = %.0f^%.0f',integer, root, power))
+      # Note: integer,root and power are all doubles. Should use      %f to represent doubles and %.0f to keep only the integer part
+    }
+    else{
+      power <- power + 1
+    }
+  }
+  if (power>max_power){
+    return('Can not find root power')
+  }
+}
+```
+
+```{r}
+findRootPower(27)
+findRootPower(13060694016)
+findRootPower(7776)
+findRootPower(170859375)
+findRootPower(58247422)
+findRootPower(94143178827)
+```
+
+# Problem 3 - ChatGPT
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
+```{r}
+
+```
+
 ```{r}
 
 ```
