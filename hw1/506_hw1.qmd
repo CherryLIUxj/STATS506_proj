@@ -5,6 +5,10 @@ format: html
 editor: visual
 ---
 
+```{r}
+knitr::opts_chunk$set(error=TRUE)
+```
+
 # Problem 1 - Wine data
 
 From <https://archive.ics.uci.edu/dataset/109/wine>, download the data set about wine. It contains two files of interest - "wine.data" with the actual rectangular data set, and "wine.names" with some information about the data. (Both files are plain-text - you can open then in any text editor, including directly in RStudio.)
@@ -66,15 +70,15 @@ It is correspondent with that reported in 'wine.names' file
     sprintf('%d wines have higher levels of magnesium than 114 mg/l',nrow(wine[which(wine$Magnesium > 114),]))
     ```
 
-Within each class, how many wines have higher levels of magnesium than average German beer?
+4.  Within each class, how many wines have higher levels of magnesium than average German beer?
 
-```{r}
-sprintf('Within class 1, there are %d wines that have higher levels of magnesium than average German bee', nrow(wine[which(wine$Magnesium > 114 & wine$Class == 1),]))
+    ```{r}
+    sprintf('Within class 1, there are %d wines that have higher levels of magnesium than average German bee', nrow(wine[which(wine$Magnesium > 114 & wine$Class == 1),]))
 
-sprintf('Within class 2, there are %d wines that have higher levels of magnesium than average German bee', nrow(wine[which(wine$Magnesium > 114 & wine$Class == 2),]))
+    sprintf('Within class 2, there are %d wines that have higher levels of magnesium than average German bee', nrow(wine[which(wine$Magnesium > 114 & wine$Class == 2),]))
 
-sprintf('Within class 3, there are %d wines that have higher levels of magnesium than average German bee', nrow(wine[which(wine$Magnesium > 114 & wine$Class == 3),]))
-```
+    sprintf('Within class 3, there are %d wines that have higher levels of magnesium than average German bee', nrow(wine[which(wine$Magnesium > 114 & wine$Class == 3),]))
+    ```
 
 ## d. Create a table identifying the average value of each variable, providing one row for the overall average, and one row per class with class averages. (This table does not need to be "fancy" but should clearly identify what each value represents.)
 
@@ -180,7 +184,7 @@ isPerfectPower(27, power = 3)$isPerfect == TRUE
 
 ## b. Demonstrate your function works. Do so by writing another function \"`findRootPower`\" which calls your first function, using a loop to identify both the root and power. Your function should identify the *lowest* power for which the input is perfect
 
-### \*The choice of maximum testing power:
+**\*The choice of maximum testing power:**
 
 Suppose an integer can be written as $\alpha \times 10^n$ , where $n=floor(log_{10}(integer))$ , then we get
 
@@ -225,38 +229,216 @@ findRootPower(94143178827)
 
 # Problem 3 - ChatGPT
 
+## a. Put the following prompt into [ChatGPT](http://chat.openai.com/) (or your favorite other LLM) and copy its output (both the code it produces as well as any text it generates) into your submission.
+
+***Produce two R functions: The first should take in a vector of suits and a vector of ranks representing a 5-card hand, and return the name of the hand (in 5 card stud poker). The second should simulate dealing a round of cards in a game of poker (5 card stud). The user should be able to specify the number of players. Show the user all the hands, and use the first function to display the name of each of the hands.***
+
+**\*Generated with ChatGPT-4:**
+
+Certainly! Here's how you can approach this:
+
+1.  Create a function to determine the name of the poker hand.
+
+2.  Create a function to simulate a round of 5-card stud poker.
+
+Here are the functions:
+
 ```{r}
+# Function to determine poker hand name
+poker_hand_name <- function(suits, ranks) {
+  # Sort the ranks
+  sorted_ranks <- sort(ranks, decreasing = TRUE)
+  
+  # Determine if the hand is a flush (all suits the same)
+  flush <- length(unique(suits)) == 1
+  
+  # Determine if the hand is straight
+  rank_names <- c("2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A")
+  rank_indices <- match(sorted_ranks, rank_names)
+  straight <- all(diff(rank_indices) == 1) || all(rank_indices == c(1, 10, 11, 12, 13))
+  
+  # Count each rank's occurrence
+  rank_counts <- table(ranks)
+  
+  # Determine other types of hands
+  four_kind <- any(rank_counts == 4)
+  three_kind <- any(rank_counts == 3)
+  two_pair <- sum(rank_counts == 2) == 2
+  one_pair <- sum(rank_counts == 2) == 1
+  
+  # Determine hand name
+  if (flush && straight && rank_indices[1] == 13) return("Royal Flush")
+  if (flush && straight) return("Straight Flush")
+  if (four_kind) return("Four of a Kind")
+  if (three_kind && one_pair) return("Full House")
+  if (flush) return("Flush")
+  if (straight) return("Straight")
+  if (three_kind) return("Three of a Kind")
+  if (two_pair) return("Two Pair")
+  if (one_pair) return("One Pair")
+  
+  return("High Card")
+}
+
+# Function to simulate a round of 5-card stud poker
+simulate_5card_stud <- function(num_players) {
+  suits <- c("Hearts", "Diamonds", "Clubs", "Spades")
+  ranks <- c("2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A")
+  deck <- expand.grid(suits = suits, ranks = ranks)
+  
+  # Shuffle the deck
+  shuffled_deck <- deck[sample(nrow(deck)), ]
+  
+  for (i in 1:num_players) {
+    player_hand <- shuffled_deck[((i-1)*5 + 1):(i*5), ]
+    hand_name <- poker_hand_name(player_hand$suits, player_hand$ranks)
+    cat(sprintf("Player %d:\n", i))
+    print(player_hand)
+    cat(sprintf("Hand: %s\n\n", hand_name))
+  }
+}
+
+# Test the function
+simulate_5card_stud(2)
 
 ```
 
-```{r}
+You can use the **`simulate_5card_stud`** function to simulate a game for any number of players. This code will shuffle a standard deck of cards, deal 5 cards to each player, print the cards and hand name for each player.
 
+## b. See if the code runs without modification in R. If so, demonstrate it with a range of inputs. If not, fix it and explain what you fixed.
+
+From above we can see that the code runs without modification in R.
+
+Demonstrate with a range of input:
+
+```{r}
+simulate_5card_stud(1)
 ```
 
 ```{r}
-
+simulate_5card_stud(4)
 ```
 
 ```{r}
+simulate_5card_stud(8)
+```
 
+## c. **Without asking ChatGPT or another LLM**, explain line-by-line what the code is doing. 
+
+(Comments are above each line of code)
+
+```{r}
+# Create function 1: to name the hand of each player
+poker_hand_name <- function(suits, ranks) {
+  
+  ## Sort the ranks in descending order
+  sorted_ranks <- sort(ranks, decreasing = TRUE)
+  
+  ## Determine if the hand is a flush (all suits the same)
+  ### unique(suits) returns the "set" of suits.
+  flush <- length(unique(suits)) == 1
+  
+  ## Determine if the hand is straight
+  rank_names <- c("2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A")
+  ### match() returns the position of each element in sorted_ranks within rank_names.
+  rank_indices <- match(sorted_ranks, rank_names)
+  ### diff() returns the differences between consecutive elements of a numeric vector, and all() tells whether the differences are all 1. 
+  ### If the differences are all one, or if the rank names are (2,J,Q,K,A), then it is called a straight hand.
+  straight <- all(diff(rank_indices) == 1) || all(rank_indices == c(1, 10, 11, 12, 13))
+  
+  ## Count each rank's occurrence
+  rank_counts <- table(ranks)
+  
+  ## Determine other types of hands
+  ### if have 4 cards of the same rank, it's a Four of a kind 
+  four_kind <- any(rank_counts == 4)
+  ### if have 3 cards of the same rank, it's a Three of a kind 
+  three_kind <- any(rank_counts == 3)
+  ### if have two cards of a rank and two cards of another rank with the fifth distinct, it's a Two pair  
+  two_pair <- sum(rank_counts == 2) == 2
+  ### if have two cards of the same rank, it's a One pair
+  one_pair <- sum(rank_counts == 2) == 1
+  
+  ## Determine hand name
+  if (flush && straight && rank_indices[1] == 13) return("Royal Flush")
+  if (flush && straight) return("Straight Flush")
+  if (four_kind) return("Four of a Kind")
+  if (three_kind && one_pair) return("Full House")
+  if (flush) return("Flush")
+  if (straight) return("Straight")
+  if (three_kind) return("Three of a Kind")
+  if (two_pair) return("Two Pair")
+  if (one_pair) return("One Pair")
+  
+  ## If nothing special then it's a High card
+  return("High Card")
+}
+
+
+# Create function 2: to simulate a round of 5-card stud poker
+simulate_5card_stud <- function(num_players) {
+  suits <- c("Hearts", "Diamonds", "Clubs", "Spades")
+  ranks <- c("2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A")
+  ## expand.grid() generates all possible combinations of cards 
+  deck <- expand.grid(suits = suits, ranks = ranks)
+  
+  ## Shuffle the deck
+  shuffled_deck <- deck[sample(nrow(deck)), ]
+  
+  ## deal cards
+  for (i in 1:num_players) {
+    ### player i gets the i_th set of 5 cards 
+    player_hand <- shuffled_deck[((i-1)*5 + 1):(i*5), ]
+    ### identify the hand name of player i
+    hand_name <- poker_hand_name(player_hand$suits, player_hand$ranks)
+    ### print out
+    cat(sprintf("Player %d:\n", i))
+    print(player_hand)
+    cat(sprintf("Hand: %s\n\n", hand_name))
+  }
+}
+
+# Test the function
+simulate_5card_stud(2)
+```
+
+## d. Determine whether the code produces accurate results. Explain how you made this determination.
+
+-   Are the inputs and outputs as described above?
+
+    We input the number of players, and the code outputs the hand name of each player and displays the card set of each player.
+
+-   Are the hands valid (e.g. real cards, no duplicates, right number)?
+
+    Hands are valid since we specifies the name of suits and ranks in function 2 as
+
+    ***''suits \<- c("Hearts", "Diamonds", "Clubs", "Spades")
+    ranks \<- c("2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A")''***
+
+    And we combine the suits and ranks using ***expand.grip(suits, ranks)*** which generates all kinds of combinations without duplicates.
+
+-   Are the names of the hands correct?
+
+    According to instructions [here](https://www.cardplayer.com/rules-of-poker/hand-rankings), we find that the code above names **"Pair"** as **"One Pair"**. Since it's just a subtle difference we can still say that the names of the hands are correct.
+
+-   Does it ensure no duplicates in cards across hands? What happens if you ask for more than 10 hands to be dealt (as there are only 52 cards in a standard deck)?
+
+    Yes it does, since ***expand.grip(suits, ranks)*** ensures no duplicates on the deck and in each loop we deal different sets of cards to the player.
+
+    Let's check what the code will output if there are more than 10 players:
+
+```{r}
+simulate_5card_stud(11)
 ```
 
 ```{r}
+# R code that might produce an error
 
+simulate_5card_stud(12)
 ```
 
-```{r}
+Since we use loop to deal players one by one and in each loop we draw out the first 5 cards on the deck without replacement, only the first 10 players can be dealt 5 cards.
 
-```
+In the code above, player 11 can be dealt 2 cards and the 3 other are named as NA. The code only outputs a warning, since sorted_ranks is a vector of length 2 and so is rank_indices, which triggers warning when operating ***rank_indices == c(1, 10, 11, 12, 13)*** . And the hand name of player 11 will always be "High Card" since there are NAs and real cards at the same time.
 
-```{r}
-
-```
-
-```{r}
-
-```
-
-```{r}
-
-```
+For players after 11, they can not be dealt any card and the code outputs an error in ***if (flush && straight && rank_indices\[1\] == 13) return("Royal Flush")*** , since ***sorted_ranks*** is a logical(0) and thus ***rank_indices*** is also a logical(0), which makes ***rank_indices\[1\] == 13*** return NA (not TRUE/FALSE).
