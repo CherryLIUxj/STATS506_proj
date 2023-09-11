@@ -3158,7 +3158,7 @@ return!"\t\n\x0B\f\r                　\u2028\u2029
 <div class="cell">
 <div class="sourceCode cell-code" id="cb1"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" aria-hidden="true" tabindex="-1"></a>knitr<span class="sc">::</span>opts_chunk<span class="sc">$</span><span class="fu">set</span>(<span class="at">error=</span><span class="cn">TRUE</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 </div>
-<p>Github: <a href="https://github.com/CherryLIUxj/STATS506_proj/tree/master/hw1" class="uri">https://github.com/CherryLIUxj/STATS506_proj/tree/master/hw1</a></p>
+<p>GitHub: <a href="https://github.com/CherryLIUxj/STATS506_proj/tree/master/hw1" class="uri">https://github.com/CherryLIUxj/STATS506_proj/tree/master/hw1</a></p>
 <section id="problem-1---wine-data" class="level1">
 <h1>Problem 1 - Wine data</h1>
 <p>From <a href="https://archive.ics.uci.edu/dataset/109/wine" class="uri">https://archive.ics.uci.edu/dataset/109/wine</a>, download the data set about wine. It contains two files of interest - “wine.data” with the actual rectangular data set, and “wine.names” with some information about the data. (Both files are plain-text - you can open then in any text editor, including directly in RStudio.)</p>
@@ -3556,20 +3556,20 @@ mean of x mean of y
 <div class="cell-output cell-output-stdout">
 <pre><code>Player 1:
       suits ranks
-47    Clubs     K
-44   Spades     Q
-38 Diamonds     J
-5    Hearts     3
-37   Hearts     J
+24   Spades     7
+27    Clubs     8
+13   Hearts     5
+50 Diamonds     A
+51    Clubs     A
 Hand: One Pair
 
 Player 2:
-    suits ranks
-1  Hearts     2
-21 Hearts     7
-11  Clubs     4
-52 Spades     A
-41 Hearts     Q
+      suits ranks
+26 Diamonds     8
+22 Diamonds     7
+31    Clubs     9
+34 Diamonds    10
+16   Spades     5
 Hand: High Card</code></pre>
 </div>
 </div>
@@ -3583,12 +3583,12 @@ Hand: High Card</code></pre>
 <div class="sourceCode cell-code" id="cb47"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb47-1"><a href="#cb47-1" aria-hidden="true" tabindex="-1"></a><span class="fu">simulate_5card_stud</span>(<span class="dv">1</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Player 1:
-    suits ranks
-27  Clubs     8
-20 Spades     6
-3   Clubs     2
-36 Spades    10
-45 Hearts     K
+      suits ranks
+2  Diamonds     2
+32   Spades     9
+43    Clubs     Q
+15    Clubs     5
+18 Diamonds     6
 Hand: High Card</code></pre>
 </div>
 </div>
@@ -3596,40 +3596,40 @@ Hand: High Card</code></pre>
 <div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="fu">simulate_5card_stud</span>(<span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Player 1:
-    suits ranks
-47  Clubs     K
-31  Clubs     9
-32 Spades     9
-15  Clubs     5
-39  Clubs     J
-Hand: One Pair
+      suits ranks
+34 Diamonds    10
+52   Spades     A
+24   Spades     7
+4    Spades     2
+7     Clubs     3
+Hand: High Card
 
 Player 2:
       suits ranks
-43    Clubs     Q
-48   Spades     K
-26 Diamonds     8
-38 Diamonds     J
-17   Hearts     6
+40   Spades     J
+35    Clubs    10
+11    Clubs     4
+51    Clubs     A
+6  Diamonds     3
 Hand: High Card
 
 Player 3:
-    suits ranks
-35  Clubs    10
-24 Spades     7
-4  Spades     2
-37 Hearts     J
-16 Spades     5
+      suits ranks
+23    Clubs     7
+33   Hearts    10
+45   Hearts     K
+12   Spades     4
+18 Diamonds     6
 Hand: High Card
 
 Player 4:
       suits ranks
-5    Hearts     3
-1    Hearts     2
-25   Hearts     8
-12   Spades     4
-18 Diamonds     6
-Hand: High Card</code></pre>
+17   Hearts     6
+9    Hearts     4
+2  Diamonds     2
+10 Diamonds     4
+14 Diamonds     5
+Hand: One Pair</code></pre>
 </div>
 </div>
 <div class="cell">
@@ -3637,75 +3637,75 @@ Hand: High Card</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code>Player 1:
       suits ranks
-16   Spades     5
-44   Spades     Q
+52   Spades     A
+14 Diamonds     5
+13   Hearts     5
+12   Spades     4
 2  Diamonds     2
-1    Hearts     2
-28   Spades     8
 Hand: One Pair
 
 Player 2:
       suits ranks
-26 Diamonds     8
-4    Spades     2
-15    Clubs     5
-3     Clubs     2
+18 Diamonds     6
+28   Spades     8
+36   Spades    10
 9    Hearts     4
-Hand: One Pair
+40   Spades     J
+Hand: High Card
 
 Player 3:
       suits ranks
-6  Diamonds     3
-12   Spades     4
+26 Diamonds     8
+21   Hearts     7
 49   Hearts     A
-30 Diamonds     9
-25   Hearts     8
-Hand: High Card
+39    Clubs     J
+51    Clubs     A
+Hand: One Pair
 
 Player 4:
       suits ranks
-35    Clubs    10
-42 Diamonds     Q
-11    Clubs     4
-34 Diamonds    10
-50 Diamonds     A
+8    Spades     3
+30 Diamonds     9
+38 Diamonds     J
+22 Diamonds     7
+5    Hearts     3
 Hand: One Pair
 
 Player 5:
-    suits ranks
-32 Spades     9
-40 Spades     J
-51  Clubs     A
-5  Hearts     3
-39  Clubs     J
-Hand: One Pair
+      suits ranks
+34 Diamonds    10
+31    Clubs     9
+35    Clubs    10
+45   Hearts     K
+46 Diamonds     K
+Hand: Two Pair
 
 Player 6:
-      suits ranks
-18 Diamonds     6
-45   Hearts     K
-21   Hearts     7
-10 Diamonds     4
-48   Spades     K
+    suits ranks
+1  Hearts     2
+27  Clubs     8
+19  Clubs     6
+33 Hearts    10
+17 Hearts     6
 Hand: One Pair
 
 Player 7:
       suits ranks
+11    Clubs     4
+32   Spades     9
+48   Spades     K
 23    Clubs     7
-33   Hearts    10
-31    Clubs     9
-43    Clubs     Q
-38 Diamonds     J
+50 Diamonds     A
 Hand: High Card
 
 Player 8:
       suits ranks
-27    Clubs     8
-14 Diamonds     5
 37   Hearts     J
-8    Spades     3
-36   Spades    10
-Hand: High Card</code></pre>
+41   Hearts     Q
+42 Diamonds     Q
+4    Spades     2
+20   Spades     6
+Hand: One Pair</code></pre>
 </div>
 </div>
 </section>
@@ -3788,20 +3788,20 @@ Hand: High Card</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code>Player 1:
       suits ranks
-30 Diamonds     9
-47    Clubs     K
-25   Hearts     8
-20   Spades     6
-39    Clubs     J
-Hand: High Card
+5    Hearts     3
+29   Hearts     9
+3     Clubs     2
+2  Diamonds     2
+6  Diamonds     3
+Hand: Two Pair
 
 Player 2:
       suits ranks
-16   Spades     5
-37   Hearts     J
-26 Diamonds     8
-35    Clubs    10
-19    Clubs     6
+9    Hearts     4
+17   Hearts     6
+34 Diamonds    10
+48   Spades     K
+21   Hearts     7
 Hand: High Card</code></pre>
 </div>
 </div>
@@ -3825,94 +3825,94 @@ Hand: High Card</code></pre>
 <div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="fu">simulate_5card_stud</span>(<span class="dv">11</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Player 1:
-      suits ranks
-50 Diamonds     A
-26 Diamonds     8
-30 Diamonds     9
-25   Hearts     8
-42 Diamonds     Q
+    suits ranks
+52 Spades     A
+39  Clubs     J
+1  Hearts     2
+5  Hearts     3
+49 Hearts     A
 Hand: One Pair
 
 Player 2:
       suits ranks
-18 Diamonds     6
-44   Spades     Q
-29   Hearts     9
+40   Spades     J
+46 Diamonds     K
 36   Spades    10
-13   Hearts     5
+32   Spades     9
+12   Spades     4
 Hand: High Card
 
 Player 3:
       suits ranks
-12   Spades     4
-32   Spades     9
-17   Hearts     6
-24   Spades     7
-10 Diamonds     4
-Hand: One Pair
+23    Clubs     7
+14 Diamonds     5
+41   Hearts     Q
+7     Clubs     3
+19    Clubs     6
+Hand: High Card
 
 Player 4:
       suits ranks
-49   Hearts     A
-37   Hearts     J
-5    Hearts     3
-33   Hearts    10
-6  Diamonds     3
+3     Clubs     2
+27    Clubs     8
+28   Spades     8
+16   Spades     5
+10 Diamonds     4
 Hand: One Pair
 
 Player 5:
       suits ranks
-16   Spades     5
-4    Spades     2
-45   Hearts     K
-14 Diamonds     5
-31    Clubs     9
-Hand: One Pair
+24   Spades     7
+37   Hearts     J
+34 Diamonds    10
+15    Clubs     5
+18 Diamonds     6
+Hand: High Card
 
 Player 6:
       suits ranks
-43    Clubs     Q
-40   Spades     J
-2  Diamonds     2
-41   Hearts     Q
-47    Clubs     K
-Hand: One Pair
+26 Diamonds     8
+8    Spades     3
+30 Diamonds     9
+44   Spades     Q
+48   Spades     K
+Hand: High Card
 
 Player 7:
       suits ranks
-27    Clubs     8
-8    Spades     3
-34 Diamonds    10
-46 Diamonds     K
+9    Hearts     4
+17   Hearts     6
+6  Diamonds     3
+42 Diamonds     Q
 20   Spades     6
-Hand: High Card
+Hand: One Pair
 
 Player 8:
-    suits ranks
-48 Spades     K
-15  Clubs     5
-23  Clubs     7
-28 Spades     8
-21 Hearts     7
-Hand: One Pair
+      suits ranks
+51    Clubs     A
+25   Hearts     8
+22 Diamonds     7
+13   Hearts     5
+4    Spades     2
+Hand: High Card
 
 Player 9:
       suits ranks
-11    Clubs     4
-3     Clubs     2
-52   Spades     A
+45   Hearts     K
+50 Diamonds     A
+31    Clubs     9
+21   Hearts     7
 38 Diamonds     J
-39    Clubs     J
-Hand: One Pair
+Hand: High Card
 
 Player 10:
-    suits ranks
-35  Clubs    10
-9  Hearts     4
-1  Hearts     2
-51  Clubs     A
-7   Clubs     3
-Hand: High Card</code></pre>
+      suits ranks
+33   Hearts    10
+35    Clubs    10
+47    Clubs     K
+2  Diamonds     2
+29   Hearts     9
+Hand: One Pair</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in rank_indices == c(1, 10, 11, 12, 13): longer object length is not a
@@ -3920,12 +3920,12 @@ multiple of shorter object length</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Player 11:
-        suits ranks
-19      Clubs     6
-22   Diamonds     7
-NA       &lt;NA&gt;  &lt;NA&gt;
-NA.1     &lt;NA&gt;  &lt;NA&gt;
-NA.2     &lt;NA&gt;  &lt;NA&gt;
+     suits ranks
+43   Clubs     Q
+11   Clubs     4
+NA    &lt;NA&gt;  &lt;NA&gt;
+NA.1  &lt;NA&gt;  &lt;NA&gt;
+NA.2  &lt;NA&gt;  &lt;NA&gt;
 Hand: High Card</code></pre>
 </div>
 </div>
@@ -3936,93 +3936,93 @@ Hand: High Card</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code>Player 1:
       suits ranks
-7     Clubs     3
-44   Spades     Q
-3     Clubs     2
-1    Hearts     2
+17   Hearts     6
 34 Diamonds    10
-Hand: One Pair
+48   Spades     K
+23    Clubs     7
+13   Hearts     5
+Hand: High Card
 
 Player 2:
       suits ranks
-27    Clubs     8
-40   Spades     J
-25   Hearts     8
-6  Diamonds     3
-51    Clubs     A
-Hand: One Pair
+11    Clubs     4
+2  Diamonds     2
+49   Hearts     A
+14 Diamonds     5
+32   Spades     9
+Hand: High Card
 
 Player 3:
       suits ranks
-19    Clubs     6
-36   Spades    10
-14 Diamonds     5
-37   Hearts     J
-20   Spades     6
-Hand: One Pair
+15    Clubs     5
+52   Spades     A
+9    Hearts     4
+38 Diamonds     J
+6  Diamonds     3
+Hand: High Card
 
 Player 4:
-    suits ranks
-45 Hearts     K
-32 Spades     9
-33 Hearts    10
-24 Spades     7
-16 Spades     5
+      suits ranks
+39    Clubs     J
+36   Spades    10
+5    Hearts     3
+30 Diamonds     9
+41   Hearts     Q
 Hand: High Card
 
 Player 5:
       suits ranks
 4    Spades     2
-2  Diamonds     2
 46 Diamonds     K
-22 Diamonds     7
-13   Hearts     5
-Hand: One Pair
+12   Spades     4
+27    Clubs     8
+43    Clubs     Q
+Hand: High Card
 
 Player 6:
       suits ranks
-31    Clubs     9
-15    Clubs     5
-41   Hearts     Q
-39    Clubs     J
 10 Diamonds     4
+21   Hearts     7
+42 Diamonds     Q
+40   Spades     J
+20   Spades     6
 Hand: High Card
 
 Player 7:
       suits ranks
-43    Clubs     Q
-38 Diamonds     J
-11    Clubs     4
+16   Spades     5
+47    Clubs     K
 8    Spades     3
-48   Spades     K
+18 Diamonds     6
+31    Clubs     9
 Hand: High Card
 
 Player 8:
       suits ranks
-42 Diamonds     Q
-12   Spades     4
-30 Diamonds     9
-29   Hearts     9
-52   Spades     A
+1    Hearts     2
+35    Clubs    10
+50 Diamonds     A
+3     Clubs     2
+45   Hearts     K
 Hand: One Pair
 
 Player 9:
       suits ranks
-26 Diamonds     8
-17   Hearts     6
-5    Hearts     3
-9    Hearts     4
-49   Hearts     A
-Hand: High Card
+7     Clubs     3
+22 Diamonds     7
+51    Clubs     A
+24   Spades     7
+25   Hearts     8
+Hand: One Pair
 
 Player 10:
       suits ranks
 28   Spades     8
-35    Clubs    10
-50 Diamonds     A
-47    Clubs     K
-23    Clubs     7
-Hand: High Card</code></pre>
+44   Spades     Q
+26 Diamonds     8
+37   Hearts     J
+19    Clubs     6
+Hand: One Pair</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
 <pre><code>Warning in rank_indices == c(1, 10, 11, 12, 13): longer object length is not a
@@ -4030,12 +4030,12 @@ multiple of shorter object length</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Player 11:
-        suits ranks
-18   Diamonds     6
-21     Hearts     7
-NA       &lt;NA&gt;  &lt;NA&gt;
-NA.1     &lt;NA&gt;  &lt;NA&gt;
-NA.2     &lt;NA&gt;  &lt;NA&gt;
+      suits ranks
+33   Hearts    10
+29   Hearts     9
+NA     &lt;NA&gt;  &lt;NA&gt;
+NA.1   &lt;NA&gt;  &lt;NA&gt;
+NA.2   &lt;NA&gt;  &lt;NA&gt;
 Hand: High Card</code></pre>
 </div>
 <div class="cell-output cell-output-error">

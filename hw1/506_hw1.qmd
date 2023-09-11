@@ -11,7 +11,7 @@ editor: visual
 knitr::opts_chunk$set(error=TRUE)
 ```
 
-Github: <https://github.com/CherryLIUxj/STATS506_proj/tree/master/hw1>
+GitHub: <https://github.com/CherryLIUxj/STATS506_proj/tree/master/hw1>
 
 # Problem 1 - Wine data
 
