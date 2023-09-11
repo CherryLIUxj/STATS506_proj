@@ -1,13 +1,17 @@
 ---
 title: "STATS506_hw1"
 author: "Xingjian Liu"
-format: html
+format: 
+  html:
+    embed-resources: true
 editor: visual
 ---
 
 ```{r}
 knitr::opts_chunk$set(error=TRUE)
 ```
+
+Github: <https://github.com/CherryLIUxj/STATS506_proj/tree/master/hw1>
 
 # Problem 1 - Wine data
 
@@ -163,7 +167,7 @@ We can see from the t-test results above that the p-value of t_test_13 is much b
 
 # Problem 2 - Perfect Powers
 
-## a. Write a function \"`isPerfectPower`\" to identify whether a given integer is a perfect power for a given power. Do not use any existing functions to check this; do so with arithmetic.
+## a. Write a function "`isPerfectPower`" to identify whether a given integer is a perfect power for a given power. Do not use any existing functions to check this; do so with arithmetic.
 
 ```{r}
 isPerfectPower <- function(integer, power){
@@ -182,7 +186,7 @@ isPerfectPower <- function(integer, power){
 isPerfectPower(27, power = 3)$isPerfect == TRUE
 ```
 
-## b. Demonstrate your function works. Do so by writing another function \"`findRootPower`\" which calls your first function, using a loop to identify both the root and power. Your function should identify the *lowest* power for which the input is perfect
+## b. Demonstrate your function works. Do so by writing another function "`findRootPower`" which calls your first function, using a loop to identify both the root and power. Your function should identify the *lowest* power for which the input is perfect
 
 **\*The choice of maximum testing power:**
 
@@ -323,7 +327,7 @@ simulate_5card_stud(4)
 simulate_5card_stud(8)
 ```
 
-## c. **Without asking ChatGPT or another LLM**, explain line-by-line what the code is doing. 
+## c. **Without asking ChatGPT or another LLM**, explain line-by-line what the code is doing.
 
 (Comments are above each line of code)
 
@@ -412,8 +416,7 @@ simulate_5card_stud(2)
 
     Hands are valid since we specifies the name of suits and ranks in function 2 as
 
-    ***''suits \<- c("Hearts", "Diamonds", "Clubs", "Spades")
-    ranks \<- c("2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A")''***
+    ***''suits \<- c("Hearts", "Diamonds", "Clubs", "Spades") ranks \<- c("2", "3", "4", "5", "6", "7", "8", "9", "10", "J", "Q", "K", "A")''***
 
     And we combine the suits and ranks using ***expand.grip(suits, ranks)*** which generates all kinds of combinations without duplicates.
 
