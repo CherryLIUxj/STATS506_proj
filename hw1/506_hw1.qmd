@@ -17,7 +17,7 @@ GitHub: <https://github.com/CherryLIUxj/STATS506_proj/tree/master/hw1>
 
 From <https://archive.ics.uci.edu/dataset/109/wine>, download the data set about wine. It contains two files of interest - "wine.data" with the actual rectangular data set, and "wine.names" with some information about the data. (Both files are plain-text - you can open then in any text editor, including directly in RStudio.)
 
-## a. Import the data into a `data.frame` in R. Use the information in the "wine.names" file to give appropriate column names. (Note: Downloading and unzipping the file can take place outside of your submitted document, but importing the file should be in the submission.)
+## a. Import the data into a `data.frame` in R. Use the information in the "wine.names" file to give appropriate column names. 
 
 ```{r}
 wine <- read.csv('wine/wine.data',header=FALSE)

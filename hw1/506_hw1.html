@@ -3162,8 +3162,8 @@ return!"\t\n\x0B\f\r                　\u2028\u2029
 <section id="problem-1---wine-data" class="level1">
 <h1>Problem 1 - Wine data</h1>
 <p>From <a href="https://archive.ics.uci.edu/dataset/109/wine" class="uri">https://archive.ics.uci.edu/dataset/109/wine</a>, download the data set about wine. It contains two files of interest - “wine.data” with the actual rectangular data set, and “wine.names” with some information about the data. (Both files are plain-text - you can open then in any text editor, including directly in RStudio.)</p>
-<section id="a.-import-the-data-into-a-data.frame-in-r.-use-the-information-in-the-wine.names-file-to-give-appropriate-column-names.-note-downloading-and-unzipping-the-file-can-take-place-outside-of-your-submitted-document-but-importing-the-file-should-be-in-the-submission." class="level2">
-<h2 class="anchored" data-anchor-id="a.-import-the-data-into-a-data.frame-in-r.-use-the-information-in-the-wine.names-file-to-give-appropriate-column-names.-note-downloading-and-unzipping-the-file-can-take-place-outside-of-your-submitted-document-but-importing-the-file-should-be-in-the-submission.">a. Import the data into a <code>data.frame</code> in R. Use the information in the “wine.names” file to give appropriate column names. (Note: Downloading and unzipping the file can take place outside of your submitted document, but importing the file should be in the submission.)</h2>
+<section id="a.-import-the-data-into-a-data.frame-in-r.-use-the-information-in-the-wine.names-file-to-give-appropriate-column-names." class="level2">
+<h2 class="anchored" data-anchor-id="a.-import-the-data-into-a-data.frame-in-r.-use-the-information-in-the-wine.names-file-to-give-appropriate-column-names.">a. Import the data into a <code>data.frame</code> in R. Use the information in the “wine.names” file to give appropriate column names.</h2>
 <div class="cell">
 <div class="sourceCode cell-code" id="cb2"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" aria-hidden="true" tabindex="-1"></a>wine <span class="ot">&lt;-</span> <span class="fu">read.csv</span>(<span class="st">&#39;wine/wine.data&#39;</span>,<span class="at">header=</span><span class="cn">FALSE</span>)</span>
 <span id="cb2-2"><a href="#cb2-2" aria-hidden="true" tabindex="-1"></a><span class="fu">head</span>(wine)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
@@ -3555,21 +3555,21 @@ mean of x mean of y
 <span id="cb45-56"><a href="#cb45-56" aria-hidden="true" tabindex="-1"></a><span class="fu">simulate_5card_stud</span>(<span class="dv">2</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Player 1:
-      suits ranks
-24   Spades     7
-27    Clubs     8
-13   Hearts     5
-50 Diamonds     A
-51    Clubs     A
-Hand: One Pair
+    suits ranks
+40 Spades     J
+32 Spades     9
+21 Hearts     7
+13 Hearts     5
+19  Clubs     6
+Hand: High Card
 
 Player 2:
       suits ranks
-26 Diamonds     8
-22 Diamonds     7
-31    Clubs     9
-34 Diamonds    10
-16   Spades     5
+10 Diamonds     4
+14 Diamonds     5
+5    Hearts     3
+1    Hearts     2
+25   Hearts     8
 Hand: High Card</code></pre>
 </div>
 </div>
@@ -3584,11 +3584,11 @@ Hand: High Card</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code>Player 1:
       suits ranks
-2  Diamonds     2
-32   Spades     9
-43    Clubs     Q
-15    Clubs     5
-18 Diamonds     6
+4    Spades     2
+24   Spades     7
+33   Hearts    10
+26 Diamonds     8
+16   Spades     5
 Hand: High Card</code></pre>
 </div>
 </div>
@@ -3596,39 +3596,39 @@ Hand: High Card</code></pre>
 <div class="sourceCode cell-code" id="cb49"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb49-1"><a href="#cb49-1" aria-hidden="true" tabindex="-1"></a><span class="fu">simulate_5card_stud</span>(<span class="dv">4</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Player 1:
-      suits ranks
-34 Diamonds    10
-52   Spades     A
-24   Spades     7
-4    Spades     2
-7     Clubs     3
+    suits ranks
+29 Hearts     9
+40 Spades     J
+19  Clubs     6
+15  Clubs     5
+52 Spades     A
 Hand: High Card
 
 Player 2:
-      suits ranks
-40   Spades     J
-35    Clubs    10
-11    Clubs     4
-51    Clubs     A
-6  Diamonds     3
-Hand: High Card
+    suits ranks
+25 Hearts     8
+1  Hearts     2
+4  Spades     2
+3   Clubs     2
+8  Spades     3
+Hand: Three of a Kind
 
 Player 3:
       suits ranks
+24   Spades     7
+34 Diamonds    10
+31    Clubs     9
+43    Clubs     Q
 23    Clubs     7
-33   Hearts    10
-45   Hearts     K
-12   Spades     4
-18 Diamonds     6
-Hand: High Card
+Hand: One Pair
 
 Player 4:
-      suits ranks
-17   Hearts     6
-9    Hearts     4
-2  Diamonds     2
-10 Diamonds     4
-14 Diamonds     5
+    suits ranks
+16 Spades     5
+41 Hearts     Q
+13 Hearts     5
+39  Clubs     J
+28 Spades     8
 Hand: One Pair</code></pre>
 </div>
 </div>
@@ -3637,75 +3637,75 @@ Hand: One Pair</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code>Player 1:
       suits ranks
-52   Spades     A
-14 Diamonds     5
-13   Hearts     5
-12   Spades     4
-2  Diamonds     2
-Hand: One Pair
+34 Diamonds    10
+42 Diamonds     Q
+16   Spades     5
+48   Spades     K
+25   Hearts     8
+Hand: High Card
 
 Player 2:
-      suits ranks
-18 Diamonds     6
-28   Spades     8
-36   Spades    10
-9    Hearts     4
-40   Spades     J
-Hand: High Card
+    suits ranks
+15  Clubs     5
+43  Clubs     Q
+3   Clubs     2
+28 Spades     8
+4  Spades     2
+Hand: One Pair
 
 Player 3:
       suits ranks
-26 Diamonds     8
-21   Hearts     7
-49   Hearts     A
-39    Clubs     J
+14 Diamonds     5
+12   Spades     4
+29   Hearts     9
 51    Clubs     A
+31    Clubs     9
 Hand: One Pair
 
 Player 4:
       suits ranks
-8    Spades     3
-30 Diamonds     9
-38 Diamonds     J
+32   Spades     9
 22 Diamonds     7
-5    Hearts     3
-Hand: One Pair
+49   Hearts     A
+17   Hearts     6
+7     Clubs     3
+Hand: High Card
 
 Player 5:
       suits ranks
-34 Diamonds    10
-31    Clubs     9
-35    Clubs    10
-45   Hearts     K
+23    Clubs     7
 46 Diamonds     K
-Hand: Two Pair
+36   Spades    10
+6  Diamonds     3
+38 Diamonds     J
+Hand: High Card
 
 Player 6:
-    suits ranks
-1  Hearts     2
-27  Clubs     8
-19  Clubs     6
-33 Hearts    10
-17 Hearts     6
-Hand: One Pair
+      suits ranks
+33   Hearts    10
+21   Hearts     7
+45   Hearts     K
+10 Diamonds     4
+52   Spades     A
+Hand: High Card
 
 Player 7:
-      suits ranks
-11    Clubs     4
-32   Spades     9
-48   Spades     K
-23    Clubs     7
-50 Diamonds     A
+    suits ranks
+9  Hearts     4
+41 Hearts     Q
+35  Clubs    10
+1  Hearts     2
+40 Spades     J
 Hand: High Card
 
 Player 8:
       suits ranks
-37   Hearts     J
-41   Hearts     Q
-42 Diamonds     Q
-4    Spades     2
+26 Diamonds     8
+47    Clubs     K
+50 Diamonds     A
 20   Spades     6
-Hand: One Pair</code></pre>
+30 Diamonds     9
+Hand: High Card</code></pre>
 </div>
 </div>
 </section>
@@ -3788,21 +3788,21 @@ Hand: One Pair</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code>Player 1:
       suits ranks
-5    Hearts     3
-29   Hearts     9
-3     Clubs     2
-2  Diamonds     2
-6  Diamonds     3
-Hand: Two Pair
+40   Spades     J
+50 Diamonds     A
+16   Spades     5
+18 Diamonds     6
+45   Hearts     K
+Hand: High Card
 
 Player 2:
       suits ranks
-9    Hearts     4
-17   Hearts     6
-34 Diamonds    10
-48   Spades     K
-21   Hearts     7
-Hand: High Card</code></pre>
+41   Hearts     Q
+4    Spades     2
+8    Spades     3
+42 Diamonds     Q
+51    Clubs     A
+Hand: One Pair</code></pre>
 </div>
 </div>
 </section>
@@ -3825,93 +3825,93 @@ Hand: High Card</code></pre>
 <div class="sourceCode cell-code" id="cb55"><pre class="sourceCode r code-with-copy"><code class="sourceCode r"><span id="cb55-1"><a href="#cb55-1" aria-hidden="true" tabindex="-1"></a><span class="fu">simulate_5card_stud</span>(<span class="dv">11</span>)</span></code><button title="Copy to Clipboard" class="code-copy-button"><i class="bi"></i></button></pre></div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Player 1:
-    suits ranks
-52 Spades     A
-39  Clubs     J
-1  Hearts     2
-5  Hearts     3
-49 Hearts     A
-Hand: One Pair
+      suits ranks
+49   Hearts     A
+10 Diamonds     4
+52   Spades     A
+27    Clubs     8
+26 Diamonds     8
+Hand: Two Pair
 
 Player 2:
-      suits ranks
-40   Spades     J
-46 Diamonds     K
-36   Spades    10
-32   Spades     9
-12   Spades     4
+    suits ranks
+13 Hearts     5
+45 Hearts     K
+7   Clubs     3
+11  Clubs     4
+19  Clubs     6
 Hand: High Card
 
 Player 3:
-      suits ranks
-23    Clubs     7
-14 Diamonds     5
-41   Hearts     Q
-7     Clubs     3
-19    Clubs     6
-Hand: High Card
+    suits ranks
+25 Hearts     8
+17 Hearts     6
+20 Spades     6
+43  Clubs     Q
+41 Hearts     Q
+Hand: Two Pair
 
 Player 4:
       suits ranks
-3     Clubs     2
-27    Clubs     8
-28   Spades     8
-16   Spades     5
-10 Diamonds     4
+22 Diamonds     7
+24   Spades     7
+1    Hearts     2
+40   Spades     J
+14 Diamonds     5
 Hand: One Pair
 
 Player 5:
       suits ranks
-24   Spades     7
-37   Hearts     J
+8    Spades     3
+23    Clubs     7
+6  Diamonds     3
+16   Spades     5
+2  Diamonds     2
+Hand: One Pair
+
+Player 6:
+      suits ranks
+42 Diamonds     Q
+51    Clubs     A
+21   Hearts     7
+5    Hearts     3
+50 Diamonds     A
+Hand: One Pair
+
+Player 7:
+      suits ranks
 34 Diamonds    10
+32   Spades     9
+38 Diamonds     J
 15    Clubs     5
 18 Diamonds     6
 Hand: High Card
 
-Player 6:
-      suits ranks
-26 Diamonds     8
-8    Spades     3
-30 Diamonds     9
-44   Spades     Q
-48   Spades     K
-Hand: High Card
-
-Player 7:
-      suits ranks
-9    Hearts     4
-17   Hearts     6
-6  Diamonds     3
-42 Diamonds     Q
-20   Spades     6
+Player 8:
+    suits ranks
+3   Clubs     2
+44 Spades     Q
+9  Hearts     4
+12 Spades     4
+36 Spades    10
 Hand: One Pair
 
-Player 8:
-      suits ranks
-51    Clubs     A
-25   Hearts     8
-22 Diamonds     7
-13   Hearts     5
-4    Spades     2
-Hand: High Card
-
 Player 9:
-      suits ranks
-45   Hearts     K
-50 Diamonds     A
-31    Clubs     9
-21   Hearts     7
-38 Diamonds     J
+    suits ranks
+4  Spades     2
+39  Clubs     J
+33 Hearts    10
+48 Spades     K
+31  Clubs     9
 Hand: High Card
 
 Player 10:
       suits ranks
-33   Hearts    10
-35    Clubs    10
-47    Clubs     K
-2  Diamonds     2
+30 Diamonds     9
 29   Hearts     9
+47    Clubs     K
+28   Spades     8
+35    Clubs    10
 Hand: One Pair</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
@@ -3920,12 +3920,12 @@ multiple of shorter object length</code></pre>
 </div>
 <div class="cell-output cell-output-stdout">
 <pre><code>Player 11:
-     suits ranks
-43   Clubs     Q
-11   Clubs     4
-NA    &lt;NA&gt;  &lt;NA&gt;
-NA.1  &lt;NA&gt;  &lt;NA&gt;
-NA.2  &lt;NA&gt;  &lt;NA&gt;
+        suits ranks
+37     Hearts     J
+46   Diamonds     K
+NA       &lt;NA&gt;  &lt;NA&gt;
+NA.1     &lt;NA&gt;  &lt;NA&gt;
+NA.2     &lt;NA&gt;  &lt;NA&gt;
 Hand: High Card</code></pre>
 </div>
 </div>
@@ -3936,92 +3936,92 @@ Hand: High Card</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code>Player 1:
       suits ranks
-17   Hearts     6
-34 Diamonds    10
-48   Spades     K
-23    Clubs     7
-13   Hearts     5
-Hand: High Card
+43    Clubs     Q
+1    Hearts     2
+50 Diamonds     A
+14 Diamonds     5
+4    Spades     2
+Hand: One Pair
 
 Player 2:
       suits ranks
-11    Clubs     4
-2  Diamonds     2
 49   Hearts     A
-14 Diamonds     5
-32   Spades     9
+15    Clubs     5
+23    Clubs     7
+29   Hearts     9
+42 Diamonds     Q
 Hand: High Card
 
 Player 3:
       suits ranks
-15    Clubs     5
-52   Spades     A
+36   Spades    10
+44   Spades     Q
+18 Diamonds     6
 9    Hearts     4
-38 Diamonds     J
-6  Diamonds     3
+24   Spades     7
 Hand: High Card
 
 Player 4:
       suits ranks
-39    Clubs     J
-36   Spades    10
-5    Hearts     3
-30 Diamonds     9
-41   Hearts     Q
+7     Clubs     3
+21   Hearts     7
+13   Hearts     5
+20   Spades     6
+10 Diamonds     4
 Hand: High Card
 
 Player 5:
-      suits ranks
-4    Spades     2
-46 Diamonds     K
-12   Spades     4
-27    Clubs     8
-43    Clubs     Q
+    suits ranks
+31  Clubs     9
+41 Hearts     Q
+28 Spades     8
+11  Clubs     4
+45 Hearts     K
 Hand: High Card
 
 Player 6:
       suits ranks
-10 Diamonds     4
-21   Hearts     7
-42 Diamonds     Q
-40   Spades     J
-20   Spades     6
+39    Clubs     J
+26 Diamonds     8
+52   Spades     A
+48   Spades     K
+34 Diamonds    10
 Hand: High Card
 
 Player 7:
       suits ranks
-16   Spades     5
-47    Clubs     K
-8    Spades     3
-18 Diamonds     6
-31    Clubs     9
-Hand: High Card
+6  Diamonds     3
+25   Hearts     8
+19    Clubs     6
+27    Clubs     8
+38 Diamonds     J
+Hand: One Pair
 
 Player 8:
       suits ranks
-1    Hearts     2
+17   Hearts     6
+16   Spades     5
+22 Diamonds     7
 35    Clubs    10
-50 Diamonds     A
-3     Clubs     2
-45   Hearts     K
+33   Hearts    10
 Hand: One Pair
 
 Player 9:
       suits ranks
-7     Clubs     3
-22 Diamonds     7
-51    Clubs     A
-24   Spades     7
-25   Hearts     8
+3     Clubs     2
+47    Clubs     K
+12   Spades     4
+46 Diamonds     K
+5    Hearts     3
 Hand: One Pair
 
 Player 10:
       suits ranks
-28   Spades     8
-44   Spades     Q
-26 Diamonds     8
-37   Hearts     J
-19    Clubs     6
+8    Spades     3
+32   Spades     9
+30 Diamonds     9
+2  Diamonds     2
+51    Clubs     A
 Hand: One Pair</code></pre>
 </div>
 <div class="cell-output cell-output-stderr">
@@ -4031,12 +4031,12 @@ multiple of shorter object length</code></pre>
 <div class="cell-output cell-output-stdout">
 <pre><code>Player 11:
       suits ranks
-33   Hearts    10
-29   Hearts     9
+37   Hearts     J
+40   Spades     J
 NA     &lt;NA&gt;  &lt;NA&gt;
 NA.1   &lt;NA&gt;  &lt;NA&gt;
 NA.2   &lt;NA&gt;  &lt;NA&gt;
-Hand: High Card</code></pre>
+Hand: One Pair</code></pre>
 </div>
 <div class="cell-output cell-output-error">
 <pre><code>Error in if (flush &amp;&amp; straight &amp;&amp; rank_indices[1] == 13) return(&quot;Royal Flush&quot;): missing value where TRUE/FALSE needed</code></pre>
