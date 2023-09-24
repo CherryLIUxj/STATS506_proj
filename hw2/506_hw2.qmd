@@ -11,7 +11,7 @@ editor: visual
 knitr::opts_chunk$set(error=TRUE)
 ```
 
-GitHub:
+GitHub: <https://github.com/CherryLIUxj/STATS506_proj/tree/master>
 
 # Problem 1 **- Dice Game**
 
