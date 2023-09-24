@@ -1,0 +1,453 @@
+---
+title: "STATS506_hw2"
+author: "Xingjian Liu"
+format: 
+  html:
+    embed-resources: true
+editor: visual
+---
+
+```{r}
+knitr::opts_chunk$set(error=TRUE)
+```
+
+GitHub:
+
+# Problem 1 **- Dice Game**
+
+## a.
+
+### Version 1: Implement this game using a loop over the die rolls.
+
+```{r}
+dice_output <- function(input){
+  if (input %in% c(2,4,6)){
+    return (input-2)
+  }
+  else {return (-2)}
+}
+```
+
+```{r}
+play_dice_1 <- function(rounds){
+  output <- 0
+  for (i in 1:rounds){
+    input <- sample(1:6,1)
+    # cat(sprintf('Round %d: input=%d\n', i,input))
+    output <- output + dice_output(input)
+  }
+  return (output)
+}
+
+```
+
+### Version 2: Implement this game using built-in R vectorized functions
+
+```{r}
+play_dice_2 <- function(rounds){
+  input_vec <- sample(1:6,rounds,replace=TRUE)
+  # print(input_vec)
+  gain <- ifelse(input_vec %% 2 == 0, input_vec-2, -2)
+  output <- sum(gain)
+  return (output)
+}
+
+```
+
+### Version 3: Implement this by collapsing the die rolls into a single `table()`
+
+```{r}
+play_dice_3 <- function(rounds){
+  input_vec <- sample(1:6,rounds,replace=TRUE)
+  input_table <- table(input_vec)
+  output <- 0
+  for (i in 1:length(input_table)){
+    output <- output + dice_output(as.integer(names(input_table[i])))*as.integer(input_table[i])  
+    # Note: do not break the line before '+' !!
+  }
+  return (output)
+}
+```
+
+### Version 4: Implement this game by using one of the "`apply`" functions.
+
+```{r}
+play_dice_4 <- function(rounds){
+  input_vec <- sample(1:6,rounds,replace=TRUE)
+  output_vec <- sapply(input_vec,dice_output)
+  output <- sum(output_vec)
+  return (output)
+}
+```
+
+## b. Demonstrate that all versions work. Do so by running each a few times, once with an input of 3, and once with an input of 3000.
+
+### Test Version 1:
+
+```{r}
+cat('Test 1:',play_dice_1(3),play_dice_1(3000),'\n')
+cat('Test 2:',play_dice_1(3),play_dice_1(3000),'\n')
+cat('Test 3:',play_dice_1(3),play_dice_1(3000),'\n')
+```
+
+### Test Version 2:
+
+```{r}
+cat('Test 1:',play_dice_2(3),play_dice_2(3000),'\n')
+cat('Test 2:',play_dice_2(3),play_dice_2(3000),'\n')
+cat('Test 3:',play_dice_2(3),play_dice_2(3000),'\n')
+```
+
+### Test Version 3:
+
+```{r}
+cat('Test 1:',play_dice_3(3),play_dice_3(3000),'\n')
+cat('Test 2:',play_dice_3(3),play_dice_3(3000),'\n')
+cat('Test 3:',play_dice_3(3),play_dice_3(3000),'\n')
+```
+
+### Test Version 4:
+
+```{r}
+cat('Test 1:',play_dice_4(3),play_dice_4(3000),'\n')
+cat('Test 2:',play_dice_4(3),play_dice_4(3000),'\n')
+cat('Test 3:',play_dice_4(3),play_dice_4(3000),'\n')
+```
+
+## c. Demonstrate that the four versions give the same result. Test with inputs 3 and 3000. (You may need to add a way to control the randomization.)
+
+```{r}
+set.seed(10)
+play_dice_1(3)
+set.seed(10)
+play_dice_2(3)
+set.seed(10)
+play_dice_3(3)
+set.seed(10)
+play_dice_4(3)
+```
+
+```{r}
+set.seed(30)
+play_dice_1(3000)
+set.seed(30)
+play_dice_2(3000)
+set.seed(30)
+play_dice_3(3000)
+set.seed(30)
+play_dice_4(3000)
+```
+
+## d. Use the *microbenchmark* package to clearly demonstrate the speed of the implementations. Compare performance with a low input (100) and a large input (10000). Discuss the results
+
+```{r}
+install.packages('microbenchmark')
+library(microbenchmark)
+```
+
+```{r}
+microbenchmark(a=play_dice_1(100),
+               b=play_dice_2(100),
+               c=play_dice_3(100),
+               d=play_dice_4(100))
+```
+
+```{r}
+microbenchmark(a=play_dice_1(10000),
+               b=play_dice_2(10000),
+               c=play_dice_3(10000),
+               d=play_dice_4(10000))
+```
+
+By comparing the min,max,mean and median of runtime for each input independently, we can see that the speed of four functions is ordered as:
+
+**Version 2 \> Version 3 \> Version 4 \> Version 1**
+
+By comparing the results of input(100) and input(10000), we find that the decline percentage of the speed for the four functions is ordered as:
+
+**Version 4 \> Version 1 \> Version 2 \> Version 3**
+
+\* where decline percentage of speed is calculated as:
+
+$(runtime_{10000} - runtime_{100})/runtime_{10000}$
+
+## e. Do you think this is a fair game? Defend your decision with evidence based upon a Monte Carlo simulation.
+
+```{r}
+# Generate 1000 simulations with different random seeds, in each of which the player rolls the dice 100 times and we calculate the average of his winning or loss. 
+# See if most of the  results are close to 0
+
+sim_results <- numeric(1000)
+
+for (i in 1:10000){ 
+  set.seed(i)
+  sim_results[i] <- play_dice_2(100)/100
+}
+hist(sim_results,breaks=100,probability = TRUE)
+```
+
+```{r}
+mean(sim_results)
+median(sim_results)
+quantile(sim_results)
+```
+
+From above, we can see that most of the average winnings (or losses) are close to 0.
+
+Thus, we can ensure the fairness of the game.
+
+# Problem 2 - Linear Regression
+
+```{r}
+cars <- read.csv('cars.csv')
+```
+
+```{r}
+names(cars)
+```
+
+## a. The names of the variables in this data are way too long. Rename the columns of the data to more reasonable lengths
+
+```{r}
+names(cars) <- c('H','L','W','eng_drive','eng_type','eng_hybrid','eng_gears','eng_trans','fuel_ctmpg','fuel_type','fuel_hwmpg','class','id','make','mod_year','year','eng_horsepower','eng_torque')
+```
+
+## b. Restrict the data to cars whose Fuel Type is "Gasoline"
+
+```{r}
+table(cars$fuel_type)
+```
+
+```{r}
+gas_cars <- cars[which(cars$fuel_type=='Gasoline'),]
+dim(cars)
+dim(gas_cars)
+```
+
+## c. Fit a linear regression model predicting MPG on the highway. The predictor of interest is horsepower.
+
+```{r}
+gas_cars$year <- as.factor(gas_cars$year)
+```
+
+```{r}
+table(gas_cars$year)
+```
+
+```{r}
+mod <- lm(fuel_hwmpg~eng_horsepower+eng_torque+H+L+W+year, data=gas_cars)
+summary(mod)
+```
+
+Controlling for the other predictors, we can see that
+
+$$
+\Delta fuel\_hwmpg = \Delta 0.0163556 * eng\_horsepower
+$$
+
+which means a unit increase in horse power (745.7 watts) will lead to an increase of 0.0163556 miles-per-gallon in Highway MPG.
+
+## d. It seems reasonable that there may be an interaction between horsepower and torque. Refit the model (with `lm`) and generate an interaction plot, showing how the relationship between horsepower and MPG changes as torque changes. Choose reasonable values of horsepower, and show lines for three different reasonable values of torque.
+
+### i) showing how the relationship between horsepower and MPG changes as torque changes
+
+```{r}
+mod2 <- lm(fuel_hwmpg~eng_horsepower*eng_torque+H+L+W+year, data=gas_cars)
+summary(mod2)
+```
+
+From above we can see that
+
+$$
+fuel\_hwmpg = -1.666\times10^{-2}*eng\_horsepower - 8.606\times10^{-2}*eng\_torque + 1.124\times10^{-4}eng\_horsepower:eng\_torque
+$$
+
+which can be written as
+
+$$
+fuel\_hwmpg = (-1.666\times10^{-2}+1.124\times10^{-4}*eng\_torque)*eng\_horsepower - 8.606\times10^{-2}*eng\_torque
+$$
+
+a unit increase in torque will lead to a $1.124\times10^{-4}$ increase in the coefficient of horsepower
+
+That said, if torque increase by 1 unit (i.e. if another 200 pounds of force on a 1-foot lever is needed to stop the motion of car.), the relationship between Highway MPG and horsepower will increase by $8.606\times10^{-2} + 1.124\times10^{-4}*eng\_horsepower$ miles-per-gallon,
+
+which means if torque increase by 1 unit, then a unit increase(745.7 watts) in horsepower will lead to a $1.124\times10^{-4}$ miles-per-gallon more increase in the Highway MPG compared to the original torque.
+
+### ii) Choose reasonable values of horsepower, and show lines for three different reasonable values of torque. (And choose a single reasonable value of year)
+
+```{r}
+install.packages("interactions")
+library(interactions)
+```
+
+-   Look up the distribution of horsepower and torque data:
+
+```{r}
+hist(gas_cars$eng_horsepower, breaks=20)
+```
+
+```{r}
+summary(gas_cars$eng_horsepower)
+```
+
+```{r}
+hist(gas_cars$eng_torque, breaks=20)
+```
+
+```{r}
+summary(gas_cars$eng_torque)
+```
+
+-   Calculate the johnson_neyman interval for interaction terms in mod2, with predictor variable = horsepower and moderator variable = torque:
+
+```{r}
+johnson_neyman(mod2,pred=eng_horsepower, modx=eng_torque)
+```
+
+From above we can see that only if torque is OUTSIDE \[108.00, 186.70\] will horsepower be significant in the regression model.
+
+So we can choose **257.0(Median), 267.2(Mean), 332.0 (3rd Qu.)** as three reasonable values for torque
+
+-   For controlling year, we can choose the mode **year='2011'** in this case
+
+```{r}
+table(gas_cars$year)
+```
+
+-   Interaction Plot with specifically selected three torque and year:
+
+```{r}
+interact_plot(mod2, pred=eng_horsepower, modx=eng_torque,modxvals=c(257,267.2,332),at=list(year='2011'))
+```
+
+## e. Calculate beta_hat from d. manually (without using `lm`) by first creating a proper design matrix, then using matrix algebra to estimate beta. Confirm that you get the same result as `lm` did prior.
+
+```{r}
+# design matrix
+X <- model.matrix(fuel_hwmpg~eng_horsepower*eng_torque+H+L+W+year
+, data=gas_cars)
+
+# response variable
+y <- gas_cars$fuel_hwmpg
+
+# OLS Formula
+beta <- solve(t(X) %*% X) %*% t(X) %*% y
+
+beta
+```
+
+```{r}
+mod2$coefficients
+```
+
+the same.
+
+# Problem 3 - Stata
+
+Repeat problem 2 parts a. through d. in Stata.
+
+```{r, eval=FALSE}
+// confirm file path
+pwd
+// import dataset
+. import delimited "/Users/liuxingjian/Documents/Stata/cars.csv", varnames(1)
+//look up dataset
+. describe
+```
+
+![](images/截屏2023-09-24%20下午3.32.55.png)
+
+![](images/截屏2023-09-24%20下午3.35.21.png)
+
+## a.
+
+```{r,eval=FALSE}
+// a. rename dataset
+. rename dimensionsheight height
+. rename dimensionslength length
+. rename dimensionswidth width
+. rename engineinformationdriveline driveline
+. rename engineinformationenginetype engtype
+. rename engineinformationhybrid hyb
+. rename engineinformationnumberofforward numgears
+. rename engineinformationtransmission trans
+. rename fuelinformationcitympg ctmpg
+. rename fuelinformationfueltype fueltype
+. rename fuelinformationhighwaympg hwmpg
+. rename identificationclassification classf
+. rename identificationid id
+. rename identificationmake make
+. rename identificationmodelyear modyear
+. rename identificationyear year
+. rename engineinformationenginestatistic horsepower
+. rename v18 torque
+
+. describe
+```
+
+![](images/截屏2023-09-24%20下午3.35.53.png)
+
+## b.
+
+```{r,eval=FALSE}
+// b. filter data to cars with Gasoline Fuel Type
+. drop if fueltype != "Gasoline"
+```
+
+(485 observations deleted)
+
+## c.
+
+```{r,eval=FALSE}
+// c. fit linear regression model
+. regress hwmpg horsepower torque height length width i.year
+```
+
+![](images/截屏2023-09-24%20下午3.36.37.png)
+
+Controlling for the other predictors, we can see that
+
+$$
+\Delta fuel\_hwmpg = \Delta 0.0163556 * eng\_horsepower
+$$
+
+which means a unit increase in horse power (745.7 watts) will lead to an increase of 0.0163556 miles-per-gallon in Highway MPG.
+
+## d.
+
+### i) showing how the relationship between horsepower and MPG changes as torque changes
+
+```{r,eval=FALSE}
+// d.1 refit model by including interaction terms
+. regress hwmpg c.horsepower##c.torque height length width i.year
+```
+
+![](images/截屏2023-09-24%20下午3.37.21.png)
+
+From above we can see that a unit increase in torque will lead to a $1.124\times10^{-4}$ increase in the coefficient of horsepower
+
+That said, if torque increase by 1 unit (i.e. if another 200 pounds of force on a 1-foot lever is needed to stop the motion of car.), the relationship between Highway MPG and horsepower will increase by $8.606\times10^{-2} + 1.124\times10^{-4}*eng\_horsepower$ miles-per-gallon,
+
+which means if torque increase by 1 unit, then a unit increase(745.7 watts) in horsepower will lead to a $1.124\times10^{-4}$ miles-per-gallon more increase in the Highway MPG compared to the original torque.
+
+### ii) Choose reasonable values of horsepower, and show lines for three different reasonable values of torque. (And choose a single reasonable value of year)
+
+For the part below, we choose the same values for torque and year as problem 2. In order to plot the lines for highwaympg\~horsepower, we select values of horsepower every 10 within \[100,638\], which is the observed range of horsepower.
+
+```{r,eval=FALSE}
+// d.2 show interact_plot 
+. margins, at(horsepower=(100(10)638) torque=(257,267.2,332) year=2011)  
+. marginsplot, noci recast(line) recastci(rarea) legend(order(1 "torque=257" 2 "torque=267.2" 3 "torque=332"))
+
+```
+
+![](images/截屏2023-09-24%20下午3.37.44.png)
+
+![](images/截屏2023-09-24%20下午3.39.25.png)
+
+（it's too long to show so I just post a snippet here👆)
+
+Marginsplot:
+
+![](images/marginsplot.jpg)
