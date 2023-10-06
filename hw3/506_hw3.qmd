@@ -1,0 +1,349 @@
+---
+title: "STATS506_hw3"
+author: "Xingjian Liu"
+format: 
+  html:
+    embed-resources: true
+editor: visual
+---
+
+```{r}
+knitr::opts_chunk$set(error=TRUE)
+```
+
+GitHub: <https://github.com/CherryLIUxj/STATS506_proj/tree/master>
+
+# Problem 1 - Vision
+
+## a. Merge the two files to create a single Stata dataset, using the **SEQN** variable for merging. Keep only records which matched. Print our your total sample size, showing that it is now 6,980.
+
+Download the file VIX_D from [this location](http://wwwn.cdc.gov/nchs/nhanes/search/datapage.aspx?Component=Examination&CycleBeginYear=2005), and determine how to read it into Stata. Then download the file DEMO_D from [this location](http://wwwn.cdc.gov/Nchs/Nhanes/Search/DataPage.aspx?Component=Demographics&CycleBeginYear=2005). Note that each page contains a link to a documentation file for that data set.
+
+```{r,eval=FALSE}
+// a. import and merge two datasets
+. ssc install usesas, replace
+
+. import sasxport5 "/Users/liuxingjian/Documents/Stata/VIX_D.XPT"
+. save vix_d.dta, replace
+
+. clear
+
+. import sasxport5 "/Users/liuxingjian/Documents/Stata/DEMO_D.XPT"
+. save demo_d.dta, replace
+
+. clear
+
+. use vix_d.dta
+. merge 1:1 seqn using demo_d.dta
+
+. count 
+. codebook _merge
+. keep if _merge==3
+. count
+```
+
+![](images/截屏2023-10-06 上午12.53.29-01.png)
+
+## b. Without fitting any models, estimate the proportion of respondents within each 10-year age bracket (e.g. 0-9, 10-19, 20-29, etc) who wear glasses/contact lenses for distance vision. Produce a nice table with the results.
+
+```{r,eval=FALSE}
+//b. 
+// VIQ220 - Glasses/contact lenses worn for distance (1,2,9,.)
+// RIDAGEYR - Age at Screening Adjudicated (0-85)
+
+. egen age = cut(ridageyr), at(0(10)90)
+// age ranges from 12 to 85, none under 10
+
+. gen viq220_1 = (viq220==1)
+// generate this variable for collapse afterwards
+```
+
+```{r}
+. preserve  
+// because collapse is destructive
+
+. collapse (count) all=seqn (sum) wear=(viq220_1), by (age)
+. gen wear_rate = wear/all
+. list
+. save ifdistance_wear 
+
+. restore
+```
+
+![](images/截屏2023-10-06 上午12.55.22.png)
+
+wear_rate is the proportion of respondents who wear glasses/contact lenses for distant version
+
+## c. Fit three logistic regression models predicting whether a respondent wears glasses/contact lenses for distance vision.
+
+Predictors:
+
+1.  age
+
+2.  age, race, gender
+
+3.  age, race, gender, Poverty Income ratio
+
+Produce a table presenting the estimated odds ratios for the coefficients in each model, along with the sample size for the model, the pseudo-r2, and AIC values.
+
+```{r,eval=FALSE}
+//c. 
+// age: RIDAGEYR; race: RIDRETH1; gender:RIAGENDR; poverty income ratio: INDFMPIR
+// logit will handle missing values itself by simply drop the entries (missing values: denoted by '.')
+
+. preserve
+
+. keep if viq220==1 | viq220==2
+// drop missing values and "Don't know" values
+
+. replace viq220=0 if viq220==2
+// transform viq220 to 0/1
+  
+. replace riagendr=0 if riagendr==2
+// transform gender to 0/1
+```
+
+```{r,eval=FALSE}
+// model 1
+. logistic viq220 ridageyr
+. estat ic
+
+// model 2
+. logistic viq220 ridageyr i.ridreth1 i.riagendr
+. estat ic
+
+// model 3
+. logistic viq220 ridageyr i.ridreth1 i.riagendr indfmpir
+. estat ic
+```
+
+```{r, eval=FALSE}
+. matrix models=J(3,10,.)
+. matrix rownames models='wear~age' 'wear~age+race+gender' 'wear~age+race+gender+pir'
+. matrix colnames models='or_age' 'or_race2' 'or_race3' 'or_race4' 'or_race5' 'or_gender' 'or_pir' 'sample_size' 'pseudo_r2' 'aic'
+. matrix models[1,1]=1.02498
+. matrix models[1,8]=6545
+. matrix models[1,9]=0.0497
+. matrix models[1,10]=8489.46
+. matrix models[2,1]=1.022831
+. matrix models[2,2]=1.169203
+. matrix models[2,3]=1.952149
+. matrix models[2,4]=1.29936
+. matrix models[2,5]=1.917442
+. matrix models[2,6]=0.6052646
+. matrix models[2,8]=6545
+. matrix models[2,9]=0.0720
+. matrix models[2,10]=8287.761
+. matrix models[3,1]=1.022436
+. matrix models[3,2]=1.123021
+. matrix models[3,3]=1.651244
+. matrix models[3,4]=1.230456
+. matrix models[3,5]=1.703572
+. matrix models[3,6]=0.5967415
+. matrix models[3,7]=1.120301
+. matrix models[3,8]=6247
+. matrix models[3,9]=0.0734
+. matrix models[3,10]=7909.808
+. matrix list models
+```
+
+![](images/截屏2023-10-06 上午1.13.29.png)
+
+## d. From the third model from the previous part, discuss whether the *odds* of men and women being wears of glasess/contact lenses for distance vision differs. Test whether the *proportion* of wearers of glasses/contact lenses for distance vision differs between men and women. Include the results of the test and its interpretation.
+
+```{r,eval=FALSE}
+. tabulate viq220 riagendr, chi2
+```
+
+![](images/截屏2023-10-06 上午1.14.53.png)
+
+From the chi-square distribution above, we can see that the **number** of wearers differs between genders. And because the **number** differs, we can conclude that the **proportion** differs as well since proportion of wearers is (number of wears) / (number of respondents).
+
+# Problem 2 - **Sakila**
+
+```{r}
+install.packages('RSQLite')
+library(DBI)
+```
+
+```{r}
+sakila <- dbConnect(RSQLite::SQLite(), "sakila_master.db")
+sakila
+```
+
+```{r}
+dbListTables(sakila)
+```
+
+## a. Aside from English, what language is most common for films? Answer this with a single SQL query
+
+```{r}
+dbListFields(sakila,"film")
+```
+
+```{r}
+dbListFields(sakila,"language")
+```
+
+```{r}
+dbGetQuery(sakila,'select name from film inner join language using (language_id) group by name order by count(*)')
+```
+
+It appears that there are only English films.
+
+## b. What genre of movie is the most common in the data, and how many movies are of this genre?
+
+### SQL+R:
+
+```{r}
+dbListFields(sakila,'category')
+```
+
+```{r}
+film_categoryName <- dbGetQuery(sakila,'select name from category join film_category using (category_id)')
+```
+
+```{r}
+freq_table <- table(film_categoryName$name)
+which(freq_table==max(freq_table))
+max(freq_table)
+```
+
+### Pure SQL
+
+```{r}
+dbGetQuery(sakila,'select name, count(*) as count from category join film_category using (category_id) group by name order by count desc limit 1')
+```
+
+Sports is the most common genre. Total of 74 Sports movies in collection.
+
+## c. Identify which country or countries have exactly 9 customers. Answer this with a single SQL query.
+
+```{r}
+dbGetQuery(sakila,'select count(distinct customer_id) as customer_count,country_id,country
+from country
+join city using (country_id)
+join address using (city_id)
+join customer using (address_id)
+group by country_id
+having customer_count=9')
+```
+
+It is UK that has exactly 9 customers.
+
+# Problem 3 **- US Records**
+
+```{r}
+records <- read.csv('us-500.csv')
+head(records)
+```
+
+## a.  What proportion of email addresses are hosted at a domain with TLD \".net\"? (E.g. in the email, \"angrycat\@freemail.org\", \"freemail.org\" is the domain, with TLD (top-level domain) \".org\".)
+
+```{r}
+length(grep('.net$',records$email))/length(records$email)
+```
+
+## b. What proportion of email addresses have at least one non alphanumeric character in them?
+
+```{r}
+length(grep("[^a-zA-Z0-9].*@",records$email))/length(records$email)
+```
+
+## c. What is the most common area code amongst all phone numbers?
+
+```{r}
+all_phone <- unique(c(records$phone1,records$phone2))
+length(all_phone)
+# phone1 phone2 no overlaps
+```
+
+```{r}
+table_areaCode <- table(sapply(all_phone,function(x) substr(x,1,3)))
+which(table_areaCode==max(table_areaCode))
+```
+
+The most common area code is '973'
+
+## d. Produce a histogram of the log of the apartment numbers for all addresses. (You may assume any number after the street is an apartment number.)
+
+the number after "\#" is apartment number
+
+```{r}
+has_apt <- records$address[grep('#',records$address)]
+length(has_apt)
+```
+
+```{r}
+list_adr_apt <- strsplit(has_apt, "#")
+list_adr_apt[[1]][2]
+```
+
+```{r}
+apt <- c()
+for (i in 1:length(has_apt)){
+  apt <- c(apt,as.integer(list_adr_apt[[i]][2]))
+}
+apt
+```
+
+```{r}
+hist(log(apt))
+```
+
+## e. [Benford\'s law](https://en.wikipedia.org/wiki/Benford's_law) is an observation about the distribution of the leading digit of real numerical data. Examine whether the apartment numbers appear to follow Benford\'s law. Do you think the apartment numbers would pass as real data?
+
+```{r}
+max_first_count <- 0
+for (i in 0:9){
+  format <- paste('^',as.character(i),sep='')
+  first_count <- length(grep(format,apt))
+  if (max_first_count < first_count){
+    max_first_digit <- i
+    max_first_count <- first_count}
+}
+
+```
+
+```{r}
+max_first_digit
+```
+
+According to Benford's Law, "in sets that obey the law, the number 1 appears as the leading significant digit, while 9 appears as the leading significant digit", which is not correspondent with our observation.
+
+So we can say the apartment numbers don't pass as real data.
+
+## f. Repeat your analysis of Benford\'s law on the *last* digit of the street number. (E.g. if your address is \"123 Main St #25\", your street number is \"123\".)
+
+```{r}
+records$address[1:10]
+```
+
+```{r}
+list_adr_st <- strsplit(records$address, " ")
+list_adr_st[[1]][1]
+```
+
+```{r}
+st <- c()
+for (i in 1:length(list_adr_st)){
+  st <- c(st,as.integer(list_adr_st[[i]][1]))
+}
+```
+
+```{r}
+max_last_count <- 0
+for (i in 0:9){
+  format <- paste(as.character(i),'$',sep='')
+  last_count <- length(grep(format,st))
+  if (max_last_count < last_count){
+    max_last_digit <- i
+    max_last_count <- last_count}
+}
+```
+
+```{r}
+max_last_digit
+```
+
+From above we can see that the most frequently observed last digit is 9, which obeys the Benford's Law that the most frequently observed last digit is 1 (if we apply Benford's Law on the last digit instead of the first digit).
