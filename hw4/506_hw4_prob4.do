@@ -15,7 +15,7 @@ replace b3=1 if b3==3 | b3==4 | b3==5  // better off/same -> 0
 svyset caseid [pw=weight_pop]
 
 // Carry out a logisitic regression model accounting for the complex survey design.
-svy: logistic b3 nd2 b7_a i.gh1 ppeducat i.race_5cat 
+svy: logistic b3 nd2 b7_b i.gh1 ppeducat i.race_5cat 
 
 // nd2's influence on b3 with control for other variables
 
