@@ -224,6 +224,12 @@ proc print data=state_freq;
 run;
 ```
 
+![](images/截屏2023-10-22%20下午8.29.53.png)
+
+California has the highest percentage of records;
+
+Michigan's percentage of records is 3.1724%.
+
 ## b. Generate a histogram of the total electricity cost in dollars, amongst those with a strictly positive cost.
 
 ```{r,eval=FALSE}
@@ -237,6 +243,8 @@ proc univariate data=elcost;
     histogram;
 run;
 ```
+
+![](images/截屏2023-10-22%20下午8.31.12.png)
 
 ## c. Generate a histogram of the log of the total electricity cost.
 
@@ -253,6 +261,8 @@ run;
 
 ```
 
+![](images/截屏2023-10-22%20下午8.31.34.png)
+
 ## d. Fit a linear regression model predicting the log of the total electricity cost based upon the number of rooms in the house and whether or not the house has a garage. (Don't forget weights.)
 
 ```{r,eval=FALSE}
@@ -263,7 +273,11 @@ run;
 quit;
 ```
 
-## e. Use that model to generate predicted values and create a scatterplot of predicted total electricity cost vs actual total electricity cost (**not** on the log scale).
+![](images/截屏2023-10-22%20下午8.31.58.png)
+
+![](images/截屏2023-10-22%20下午8.32.22.png)
+
+## e. Use that model to generate predicted values and create a scatter plot of predicted total electricity cost vs actual total electricity cost (**not** on the log scale).
 
 ```{r,eval=FALSE}
 data pred_elcost;
@@ -277,6 +291,8 @@ proc sgplot data=pred_elcost;
     title "Scatter Plot of fitted values vs actual values with Regression Line";
 run;
 ```
+
+![](images/截屏2023-10-22%20下午8.32.46.png)
 
 # Problem 4 - Multiple Tools
 
@@ -302,17 +318,15 @@ Additionally, the data comes from a complex survey design, so we need to account
 
 Take a look at the Codebook. For very minor extra credit, how was the Codebook generated? (No loss of points if you skip this.)
 
-![](images/截屏2023-10-22%20下午2.50.47.png)
+![](images/截屏2023-10-22 下午2.50.47.png)
 
-![](images/截屏2023-10-22%20下午2.52.49.png)
+![](images/截屏2023-10-22 下午2.52.16.png)
 
-![](images/截屏2023-10-22%20下午2.53.48.png)
+![](images/截屏2023-10-22 下午2.53.48.png)
 
-![](images/截屏2023-10-22%20下午3.03.37.png)
+![![](images/截屏2023-10-22 下午3.12.34.png)](images/截屏2023-10-22 下午3.03.37.png)
 
-![](images/截屏2023-10-22%20下午4.07.02.png)
-
-![](images/截屏2023-10-22%20下午5.49.11.png)
+![](images/截屏2023-10-22 下午5.49.11.png)
 
 **Response**: B3 (Compared to 12 months ago, would you say that you (and your family) are better off, the same, or worse off financially?)
 
@@ -363,12 +377,12 @@ run;
 ```{r, eval=FALSE}
 // import dataset into Stata and lookup
 import delimited "/Users/liuxingjian/Documents/Stata/public2022_use.csv"
-describe
+described.
 ```
 
-![](images/截屏2023-10-22%20下午6.27.48.png)
+![](images/截屏2023-10-22 下午8.37.20.png)
 
-## d.
+## d. 
 
 Demonstrate that you've successfully extracted the appropriate data by showing the number of observations and variables. (Report these values via Stata code don't just say "As we see in the Properties window". The Codebook should give you a way to ensure the number of rows is as expected.)
 
@@ -377,7 +391,7 @@ display "Number of observations: " _N
 display "Number of variables: " `r(k)'
 ```
 
-![](images/截屏2023-10-22%20下午6.28.49.png)
+![](images/截屏2023-10-22 下午8.37.44.png)
 
 As we can see from the CodeBook, we have in total 11667 observations and there are no missing values in any variables. So the number of observations and variables corresponds with the CodeBook.
 
@@ -406,6 +420,8 @@ Carry out a logisitic regression model accounting for the complex survey design.
 
 Notice that the model does not provide a pseudo-R\^2. R has the functionality to do this.
 
+Modeling:
+
 In this case, we take **nd2** as a discrete numeric variable, meaning that as the value goes up from 1 to 5, the respondent becomes more positive about future natural environment.
 
 We also take **B7_a** and **ppeducat** as discrete numeric variables, meaning that as the value goes up, the economic condition goes higher or the education level of the respondent goes higher.
@@ -418,7 +434,9 @@ svyset caseid [pw=weight_pop]
 svy: logistic b3 nd2 b7_a i.gh1 ppeducat i.race_5cat 
 ```
 
-![](images/截屏2023-10-22%20下午6.34.23.png)
+![](images/截屏2023-10-22 下午8.38.52.png)
+
+![](images/截屏2023-10-22 下午8.39.07.png)
 
 However, we can see from the p-value of nd2 (which is 0.693) that nd2 is not significant on b3, which is to say:
 
