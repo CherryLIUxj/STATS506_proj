@@ -1,0 +1,318 @@
+---
+title: "STATS506_hw5"
+author: "Xingjian Liu"
+format: 
+  html:
+    embed-resources: true
+editor: visual
+---
+
+```{r}
+knitr::opts_chunk$set(error=TRUE)
+```
+
+GitHub: <https://github.com/CherryLIUxj/STATS506_proj/tree/master>
+
+## **Problem 1 - Plotting**
+
+## (a)
+
+Produce a graph of the **mean** monthly temperature in **celsius**. Draw a scatter-plot where the x-axis is month and the y-axis is the average monthly temperature in celsius. Add a line connecting the points within each season and color the lines and points by season (same color for lines and points in the same season). Be sure both x-axis and the legend are ordered appropriately, and that all labels/titles are clear and ready for publication (e.g. no variable names).
+
+```{r}
+nnmaps <- read.csv('chicago-nmmaps.csv')
+```
+
+```{r}
+library(ggplot2)
+library(dplyr)
+```
+
+```{r}
+mean_monthly_temp <- nnmaps %>%
+  mutate(temp_cels = (temp-30)*5/9) %>%
+  group_by(month,month_numeric) %>%
+  summarize(mean_temp_cels = mean(temp_cels, na.rm = TRUE), 
+            season=first(season)) %>%
+  arrange(month_numeric)
+```
+
+```{r}
+mean_monthly_temp$month <- factor(mean_monthly_temp$month,levels=c('Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'))
+```
+
+```{r}
+mean_monthly_temp
+```
+
+```{r}
+ggplot(mean_monthly_temp, aes(x = month, y = mean_temp_cels, color = season, group = season)) +
+  geom_point() +
+  geom_line() +
+  scale_color_manual(values = c("Winter" = "blue", "Spring" = "green",
+                                "Summer" = "red", "Autumn" = "orange")) +
+  labs(x = "Month", y = "Mean Monthly Temperature (°C)",
+       title = "Mean Monthly Temperature by Season",
+       color = "Season")
+```
+
+## (b)
+
+Produce a similar plot with four sets of lines: mean monthly temperature in celsius, mean montly O3, mean monthly PM10, and mean monthly dewpoint. Figure out a way to distinguish between the four lines. Again, make sure the plot is publication-ready (clean and clear labels).
+
+Use the plot to answer the following question:"Which of the four variables seems to have the least seasonal trend?"
+
+```{r}
+mean_monthly_params <- nnmaps %>%
+  mutate(temp_cels = (temp-30)*5/9) %>%
+  group_by(month,month_numeric) %>%
+  summarize(mean_temp_cels = mean(temp_cels, na.rm = TRUE), 
+            mean_o3 = mean(o3, na.rm=TRUE),
+            mean_pm10 = mean(pm10, na.rm=TRUE),
+            mean_dewpoint = mean(dewpoint, na.rm=TRUE),
+            season=first(season)) %>%
+  arrange(month_numeric)
+```
+
+```{r}
+mean_monthly_params$month <- factor(mean_monthly_params$month,levels=c('Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'))
+```
+
+```{r}
+mean_monthly_params
+```
+
+```{r}
+ggplot(mean_monthly_params) +
+  geom_line(aes(x = month, y = mean_temp_cels, group=season, color = 'Temperature', linetype=season)) +
+  geom_line(aes(x = month, y = mean_o3, group=season,color = 'O3',linetype=season)) +
+  geom_line(aes(x = month, y = mean_pm10, group=season, color = 'PM10',linetype=season)) +
+  geom_line(aes(x = month, y = mean_dewpoint, group=season, color = 'Dewpoint', linetype=season)) +
+  labs(title = "Mean Monthly Temperature, O3, PM10, and Dewpoint",
+       x = "Month", y = "Mean Monthly Values") +
+  scale_color_manual(values = c("blue", "red", "orange", "green")) +
+  scale_linetype_manual(values = c('solid','dotted','dashed','dotdash'))
+```
+
+From the lot above, we can see that PM10 varies the least with month change, which means PM10 has the least seasonal trend
+
+# Problem 2 - OOP
+
+Create a class to represent a polynomial expression (such as 7�3−3�+2) called `poly`. Do this using S4.
+
+## a.
+
+For the `poly` class, define the following:
+
+-   A constructor
+
+-   A validator
+
+-   A `show` method
+
+-   Addition and substraction
+
+```{r}
+library(methods)
+```
+
+```{r}
+setClass("poly", 
+         slots = c(coefficient = "numeric", power = "numeric"))
+```
+
+constructor:
+
+```{r}
+make_poly <- function(coeff, power) {
+    new("poly", coefficient = coeff, power = power)
+}
+```
+
+validator:
+
+```{r}
+setValidity("poly", function(object) {
+    if (length(object@coefficient) != length(object@power)) {
+        stop("Lengths of coeffs and powers not equal")
+    }
+    return(TRUE)
+})
+
+```
+
+`show` method:
+
+```{r}
+create_term <- function(coeff, power) {
+    if (coeff == 0) {
+      return(NULL)
+    }
+    term <- ""
+    if (abs(coeff) != 1 || power == 0) {
+      term <- paste0(term, coeff)
+    } 
+    else if (coeff == -1) {
+      term <- paste0(term, "-")
+    }
+    if (power == 1) {
+      term <- paste0(term, "x")
+    } 
+    else if (power != 0) {
+      term <- paste0(term, "x^", power)
+    }
+    term
+  }
+```
+
+```{r}
+create_expr <- function(coeffs, powers) {
+  terms <- mapply(create_term, coeffs, powers)
+  expr <- paste(unlist(terms), collapse = " + ")
+  gsub("\\+ -", " - ", expr)
+}
+```
+
+```{r}
+create_expr(c(2,3,-1,0,4,5,-3),c(3,-1,0,8,9,0,-1))
+```
+
+```{r}
+setMethod("show", "poly", function(object) {
+    cat(create_expr(object@coefficient,object@power),'\n')
+    return(invisible(object))
+})
+```
+
+`Addition` method
+
+```{r}
+# Note: must use as.character(power) to access the names of new_coeff, or it will access the indices instead of names!
+
+setMethod("+", signature(e1 ="poly", 
+                         e2 = "poly"), 
+          function(e1, e2) {
+    powers <- unique(c(e1@power, e2@power))
+    new_coeff <- numeric(length(powers))
+    names(new_coeff) <- powers
+    
+    for (power in powers) {
+        new_coeff[as.character(power)] <- sum(e1@coefficient[e1@power == power], 
+e2@coefficient[e2@power == power], 
+na.rm = TRUE)
+    }
+    
+    new_power <- as.numeric(names(new_coeff))
+    make_poly(new_coeff, new_power)
+})
+```
+
+`subtraction` method
+
+```{r}
+setMethod("-", signature(e1 ="poly", 
+                         e2 = "poly"), 
+          function(e1, e2) {
+    powers <- unique(c(e1@power, e2@power))
+    new_coeff <- numeric(length(powers))
+    names(new_coeff) <- powers
+    
+    for (power in powers) {
+        new_coeff[as.character(power)] <- sum(e1@coefficient[e1@power == power], 
+-e2@coefficient[e2@power == power], 
+na.rm = TRUE)
+    }
+    
+    new_power <- as.numeric(names(new_coeff))
+    make_poly(new_coeff, new_power)
+})  
+```
+
+## b.
+
+Use your poly class to run the following code:
+
+```{r}
+# 3x^2 + 2
+p1 <- make_poly(c(3, 2), c(2, 0)) 
+# 7x^3 - 2x^2 - x + 17
+p2 <- make_poly(c(7, -2, -1, 17), c(3, 2, 1, 0)) 
+p1
+p2
+p1 + p2
+p1 - p2
+```
+
+Note: In this case we require the user to input the simplified mathematical expression. For instance, we must not input make_poly(c(3, 2,1), c(2, 0,2)) since it can be simplified to make_poly(c(4, 2), c(2, 0))
+
+# Problem 3 - Data Table
+
+Install and load the package [**nycflights13**](https://cran.r-project.org/package=nycflights13).
+
+## a.
+
+Generate a table (which can just be a nicely printed tibble) reporting the mean and median departure delay per airport. Generate a second table (which again can be a nicely printed tibble) reporting the mean and median arrival delay per airport. ***Exclude any destination with under 10 flights***. Do this exclusion through code, not manually.
+
+Additionally,
+
+-   Order both tables in descending mean delay.
+
+-   Both tables should use the airport *names* not the airport *codes*.
+
+-   Both tables should print all rows.
+
+**Note: I exclude observations with airport codes but without airport names, different from the PS #04 Solution.**
+
+```{r}
+library(nycflights13)
+```
+
+```{r}
+library(data.table)
+```
+
+```{r}
+flights_dt <- as.data.table(flights)
+airports_dt <- as.data.table(airports)
+planes_dt <- as.data.table(planes)
+```
+
+```{r}
+dep_delay <- flights_dt[, .(
+  mean_dep_delay = mean(dep_delay, na.rm = TRUE),
+  median_dep_delay = median(dep_delay, na.rm = TRUE),
+  total_flights = .N), 
+  by = .(origin)][total_flights>10][order(-mean_dep_delay)][airports_dt,.(name, mean_dep_delay, median_dep_delay),on=.(origin=faa),nomatch=0L]
+```
+
+```{r}
+print(dep_delay)
+```
+
+```{r}
+arr_delay <- flights_dt[, .(
+  mean_arr_delay = mean(arr_delay, na.rm = TRUE),
+  median_arr_delay = median(arr_delay, na.rm = TRUE),
+  total_flights = .N), 
+  by = .(dest)][total_flights>10][airports_dt,.(name, mean_arr_delay, median_arr_delay),on=.(dest=faa),nomatch=0L][order(-mean_arr_delay)]
+```
+
+```{r}
+print(arr_delay)
+```
+
+## b.
+
+How many flights did the aircraft model with the fastest average speed take? Produce a table with 1 row, and entires for the model, average speed (in MPH) and number of flights.
+
+```{r}
+# average speed = distance / time
+# time = air_time (minute to hour)
+fastest_model <- flights_dt[planes_dt, on = .(tailnum),nomatch=0L][, .(
+  speed = mean(distance/(air_time/60), na.rm = TRUE),
+  total_flights = .N), by = .(model)][order(-speed)][1]
+```
+
+```{r}
+print(fastest_model)
+```
