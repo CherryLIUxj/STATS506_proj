@@ -7,6 +7,10 @@ format:
 editor: visual
 ---
 
+GitHub: <https://github.com/CherryLIUxj/STATS506_proj/tree/master>
+
+# Problem 1 - Bootstrap
+
 Use the `flights` data from the **nycflights13** package. Use stratified bootstrapping by `dests` to estimate the average `air_time` for flights within each `origin` and produce a table including the estimates and confidence intervals for each `origin`.
 
 Carry this out two ways:
