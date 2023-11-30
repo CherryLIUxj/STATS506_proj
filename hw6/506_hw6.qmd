@@ -1,0 +1,101 @@
+---
+title: "STATS506_hw6"
+author: "Xingjian Liu"
+format: 
+  html:
+    embed-resources: true
+editor: visual
+---
+
+Use the `flights` data from the **nycflights13** package. Use stratified bootstrapping by `dests` to estimate the average `air_time` for flights within each `origin` and produce a table including the estimates and confidence intervals for each `origin`.
+
+Carry this out two ways:
+
+1.  Without any parallel processing
+
+2.  With some form of parallel processing (either **parallel** or **futures** package). (For very minor extra credit, implement with both packages.)
+
+Generate at least 1,000 bootstrapped samples. Report the performance difference between the versions.
+
+```{r}
+library(nycflights13)
+```
+
+```{r}
+library(dplyr)
+```
+
+```{r}
+data(flights)
+```
+
+## 1. Without Parallel Processing
+
+```{r}
+bootstrap <- function() {
+  subsample_list <- split(flights, flights$dest)
+  bootsample <- lapply(subsample_list, function(x) {x[sample(nrow(x),replace=TRUE), ]})
+  
+  boot_df <- do.call(rbind, bootsample)
+  
+  stats <- boot_df %>%
+    group_by(origin) %>%
+    summarize(average = mean(air_time,na.rm=TRUE),
+              lower = quantile(air_time, probs=0.25, na.rm=TRUE),
+              upper = quantile(air_time, probs=0.75, na.rm=TRUE)
+              )
+}
+```
+
+```{r}
+reps <- 1000
+system.time(res1 <- lapply(seq_len(reps), function(x) bootstrap()))
+```
+
+```{r}
+ori_list <- list()
+for (ori in res1[[1]]$origin) {
+  origin <- lapply(res1, function(x){
+    ori_df <- x[x$origin==ori, ]
+    c(average = ori_df$average, lower = ori_df$lower, upper = ori_df$upper)
+} )
+  sum_origin <- Reduce(`+`, origin)
+  avg_origin <- sum_origin/reps
+  ori_list[[ori]] <- avg_origin
+}
+```
+
+```{r}
+do.call(rbind,ori_list)
+```
+
+## 2. With parallel processing
+
+### i) future
+
+```{r}
+library(future.apply)
+plan(multisession)
+```
+
+```{r}
+reps <- 1000
+system.time(res2 <- future_lapply(seq_len(reps), function(x) bootstrap(), future.seed = TRUE))
+```
+
+```{r}
+ori_list_future <- list()
+for (ori in res2[[1]]$origin) {
+  origin <- lapply(res2, function(x){
+    ori_df <- x[x$origin==ori, ]
+    c(average = ori_df$average, lower = ori_df$lower, upper = ori_df$upper)
+} )
+  sum_origin <- Reduce(`+`, origin)
+  avg_origin <- sum_origin/reps
+  ori_list_future[[ori]] <- avg_origin
+}
+```
+
+```{r}
+do.call(rbind,ori_list_future)
+```
