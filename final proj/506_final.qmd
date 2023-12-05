@@ -1,0 +1,668 @@
+---
+title: "506_finalproj"
+author: "Xingjian Liu"
+format: 
+  html:
+    embed-resources: true
+editor: visual
+---
+
+# (I) Configuration
+
+## i) libraries
+
+```{r}
+library(ggplot2)
+library(survey)
+library(car)
+library(MASS)
+library(dplyr)
+library(gridExtra)
+```
+
+## ii) Dataset
+
+```{r}
+df <- read.csv('cbecs2018_final_public.csv')
+```
+
+```{r}
+nrow(df)
+```
+
+### stratify on PUBCLIM
+
+```{r}
+# Principal Building Activity
+table(df$PBA)
+```
+
+```{r}
+# Climate Zone
+## 7: witheld
+table(df$PUBCLIM)
+```
+
+# (II) Check variables
+
+## i) Target Predictor: floor-to-ceiling height
+
+### 1. Weighted and Unweighted Distribution
+
+```{r}
+summary(df[['FLCEILHT']])
+```
+
+```{r}
+nrow(df[which(df$FLCEILHT==995),])/nrow(df)
+```
+
+Since observations with floor-to-ceiling height \>50 feet only accounts for a very small proportion, we can simply drop
+
+```{r}
+# without sample weight
+hist(df[-which(df$FLCEILHT==995),]$FLCEILHT, 
+     main = "Histogram of FLCEILHT", 
+     xlab= "FLCEILHT")
+```
+
+Check the distribution of sample weight
+
+```{r}
+summary(df[-which(df$FLCEILHT==995),]$FINALWT)
+```
+
+```{r}
+hist(df[-which(df$FLCEILHT==995),]$FINALWT,
+     main = "Histogram of FINALWT", 
+     xlab= "FINALWT")
+```
+
+```{r}
+# without sample weight
+ggplot(df[-which(df$FLCEILHT==995),], aes(x = FLCEILHT)) + 
+  geom_histogram(aes(y = ..density..), binwidth = 5, fill ="yellow", color = "black") +
+  labs(title = "Histogram of FLCEILHT", x = "FLCEILHT", y = "Density") +
+  geom_density(alpha = 0.2, fill = "red")  
+```
+
+```{r}
+# with sample weight
+ggplot(df[-which(df$FLCEILHT==995),], aes(x = FLCEILHT, weight = FINALWT)) + 
+  geom_histogram(aes(y = ..density..), binwidth = 5, fill ="yellow", color = "black") +
+  labs(title = "Weighted Histogram of FLCEILHT", x = "FLCEILHT", y = "Density") +
+  geom_density(alpha = 0.2, fill = "red")  
+```
+
+### 2. Missing Values
+
+```{r}
+table(df[-which(df$FLCEILHT==995),]$ZFLCEILHT)
+```
+
+no missing value (`ZFLCEILHT`==9)
+
+`ZFLCEILHT`==1: imputed using hot-deck method
+
+```{r}
+df1 <- df[-which(df$FLCEILHT==995),]
+```
+
+## ii) Response - Energy Efficiency
+
+`TOTEUI = MFBTU/SQFT`
+
+`HTEUI = MFHTBTU/SQFT` , `CLEUI = MFCLBTU/SQFT` , `VNEUI = MFVNBTU/SQFT` , `WTEUI = MFWTBTU/SQFT` , `LTEUI = MFLTBTU/SQFT` , `CKEUI = MFCKBTU/SQFT` , `RFEUI = MFRFBTU/SQFT` , `OFEUI = MFOFBTU/SQFT` , `PCEUI = MFPCBTU/SQFT` , `OTEUI = MFOTBTU/SQFT`
+
+### 1. Missing Values
+
+drop where `ZMFBTU`==9 (79 observations)
+
+```{r}
+table(df1$ZMFBTU)
+# 2: 208 observations of PBA=23 (strip center)
+# 9: all NA
+```
+
+```{r}
+df2 <- df1[-which(df1$ZMFBTU==9),]
+```
+
+### 2. Check components of MFBTU
+
+```{r}
+df_resp_raw <- df2[c('MFBTU','MFHTBTU','MFCLBTU','MFVNBTU','MFWTBTU','MFLTBTU','MFCKBTU','MFRFBTU','MFOFBTU','MFPCBTU','MFOTBTU')]
+```
+
+```{r}
+# Confirmed: MFBTU is the sum of the other
+sum(df_resp_raw$MFBTU == rowSums(subset(df_resp_raw,select=-c(MFBTU)))) == length(df_resp_raw$MFBT)
+```
+
+```{r}
+table(df2$ZSQFT)
+# SQFT no missing values
+```
+
+```{r}
+summary(df2$SQFT)
+```
+
+```{r}
+# 之后整合到函数
+df_resp <- df2 %>%
+  mutate(TOTEUI = MFBTU/SQFT,
+         HTEUI = MFHTBTU/SQFT ,
+         CLEUI = MFCLBTU/SQFT ,
+         VNEUI = MFVNBTU/SQFT ,
+         WTEUI = MFWTBTU/SQFT ,
+         LTEUI = MFLTBTU/SQFT , 
+         CKEUI = MFCKBTU/SQFT , 
+         RFEUI = MFRFBTU/SQFT , 
+         OFEUI = MFOFBTU/SQFT , 
+         PCEUI = MFPCBTU/SQFT , 
+         OTEUI = MFOTBTU/SQFT ) %>%
+  select(c('TOTEUI',
+         HTEUI,
+         CLEUI,
+         VNEUI,
+         WTEUI,
+         LTEUI, 
+         CKEUI, 
+         RFEUI, 
+         OFEUI, 
+         PCEUI, 
+         OTEUI))
+```
+
+```{r}
+df_resp
+```
+
+## iii) Other Predictors
+
+can be divided into two groups: Building and Operational characteristics
+
+For numerical variables, drop observations with masked values;
+
+For categorical variables, drop observations with Missing values
+
+```{r}
+# Numeric
+table(df2$ZBASEMNT)
+```
+
+has missing (9): BASEMNT (other only 0,1), accounts for large
+
+has masked : NFLOOR (0.09), BASEMNT (0.003), NOCC (0.005)
+
+-\> can simply drop
+
+```{r}
+nrow(df2[which(df2$NOCC==996),])/nrow(df2)
+```
+
+```{r}
+df3 <- df2 %>%
+  filter(
+    # masked
+  )
+```
+
+```{r}
+# Categorical
+table(df2$ZYRCONC)
+```
+
+has missing: RENOV (400), TINT (226), REFL (226), SKYLT (226), AWN (226), DAYLTP (226)
+
+-\> can simply drop
+
+# (III) Prepare Dataset with Function
+
+## i) Cleaning Function
+
+```{r}
+cleaning_withBASE <- function(dataf){
+  df_final <- dataf %>%
+    # select useful variables
+    select(FLCEILHT,
+             MFBTU,MFHTBTU,MFCLBTU,MFVNBTU,MFLTBTU,MFPCBTU,
+             SQFT,
+             WLCNS,RFCNS,RFTILT,BLDSHP,GLSSPC,NFLOOR,BASEMNT,ATTIC,RENOV,RFCOOL,WINTYP,TINT,REFL,SKYLT,AWN,DAYLTP,YRCONC,FEDFAC,NOCC,WKHRS,NWKER,SCHED,
+             FINALWT) %>%
+    # remove missing values
+    filter(!rowSums(is.na(.))) %>%
+    # remove masked values
+    filter(FLCEILHT!=995, NFLOOR!=994, NFLOOR!=995, BASEMNT!=995, NOCC!=996) %>%
+    # create EUI variables
+    mutate(TOTEUI = MFBTU/SQFT,
+         HTEUI = MFHTBTU/SQFT ,
+         CLEUI = MFCLBTU/SQFT ,
+         VNEUI = MFVNBTU/SQFT ,
+         LTEUI = MFLTBTU/SQFT , 
+         PCEUI = MFPCBTU/SQFT) %>%
+    # select useful variables
+    select(c(FLCEILHT,
+             TOTEUI, HTEUI, CLEUI, VNEUI, LTEUI, PCEUI,
+             SQFT,
+             WLCNS,RFCNS,RFTILT,BLDSHP,GLSSPC,NFLOOR,BASEMNT,ATTIC,RENOV,RFCOOL,WINTYP,TINT,REFL,SKYLT,AWN,DAYLTP,YRCONC,FEDFAC,NOCC,WKHRS,NWKER,SCHED,
+             FINALWT)) %>%
+    # convert categorical variables to factors
+    mutate(WLCNS=factor(WLCNS),
+           RFCNS=factor(RFCNS),
+           BLDSHP=factor(BLDSHP),
+           ATTIC=factor(ATTIC),
+           RENOV=factor(RENOV),
+           RFCOOL=factor(RFCOOL),
+           WINTYP=factor(WINTYP),
+           TINT=factor(TINT),
+           REFL=factor(REFL),
+           SKYLT=factor(SKYLT),
+           AWN=factor(AWN),
+           FEDFAC=factor(FEDFAC),
+           SCHED=factor(SCHED),
+           GLSSPC=factor(GLSSPC),
+           YRCONC=factor(YRCONC)
+           ) 
+    # convert ordinal categorical variables to factors with level
+    # mutate(GLSSPC=factor(GLSSPC, level=c(1,2,3,4,5,6), ordered = TRUE),
+    #        YRCONC=factor(YRCONC, level=c(2,3,4,5,6,7,8,9), ordered = TRUE))
+
+    return (df_final)
+}
+```
+
+## ii) Stratified Subsets
+
+```{r}
+df_wBASE <- df[-which(df$ZBASEMNT==9),]
+```
+
+```{r}
+table(df_wBASE$BASEMNT)
+```
+
+```{r}
+# stratify on climate zone
+## only the first 5 is meaningful (the last one denotes 'Withheld for confidentiality')
+subdf_clm_wBASE <- list()
+for (clm in names(table(df_wBASE$PUBCLIM))){
+  subdf_clm_wBASE[[clm]] <- df_wBASE[which(df_wBASE$PUBCLIM==as.numeric(clm)),]
+}
+
+sub_clm_list <- lapply(subdf_clm_wBASE, cleaning_withBASE)
+```
+
+```{r}
+lapply(sub_clm_list, function(x){print(nrow(x))})
+```
+
+```{r}
+# without stratifying on climate zone:
+df_w <- cleaning_withBASE(df_wBASE)
+```
+
+```{r}
+nrow(df_w)
+```
+
+```{r}
+sum(df_w$FINALWT)
+```
+
+### 1. Distribution on Climate Zone
+
+```{r}
+barplot(table(df$PUBCLIM), names.arg = c('Cold','Cool','Mild','Warm','Hot', 'Withheld'), main = "Frequency of Climate Zone", xlab = "Climate Zone", ylab = "Frequency")
+```
+
+# (IV) Fit Regression Model
+
+## i) fit OLS simple linear regression model
+
+```{r}
+design_w <- svydesign(ids = ~1, data = df_w, weights = ~FINALWT)
+sols_w_tot <- svyglm(TOTEUI~FLCEILHT, design = design_w)
+sols_w_ht <- svyglm(HTEUI~FLCEILHT, design = design_w)
+sols_w_cl <- svyglm(CLEUI~FLCEILHT, design = design_w)
+sols_w_vn <- svyglm(VNEUI~FLCEILHT, design = design_w)
+sols_w_lt <- svyglm(LTEUI~FLCEILHT, design = design_w)
+sols_w_pc <- svyglm(PCEUI~FLCEILHT, design = design_w)
+```
+
+```{r}
+coef(summary(sols_w_tot))["FLCEILHT", "Estimate"]
+coef(summary(sols_w_ht))["FLCEILHT", "Estimate"]
+coef(summary(sols_w_cl))["FLCEILHT", "Estimate"]
+coef(summary(sols_w_vn))["FLCEILHT", "Estimate"]
+coef(summary(sols_w_lt))["FLCEILHT", "Estimate"]
+coef(summary(sols_w_pc))["FLCEILHT", "Estimate"]
+```
+
+```{r}
+coef(summary(sols_w_tot))["FLCEILHT", "Pr(>|t|)"]
+coef(summary(sols_w_ht))["FLCEILHT", "Pr(>|t|)"]
+coef(summary(sols_w_cl))["FLCEILHT", "Pr(>|t|)"]
+coef(summary(sols_w_vn))["FLCEILHT", "Pr(>|t|)"]  # significant
+coef(summary(sols_w_lt))["FLCEILHT", "Pr(>|t|)"]
+coef(summary(sols_w_pc))["FLCEILHT", "Pr(>|t|)"]  # significant
+```
+
+## ii) fit OLS multi linear regression model
+
+suppose all predictors are independent
+
+```{r}
+formula_w_tot <- as.formula('TOTEUI ~ FLCEILHT+WLCNS+RFCNS+RFTILT+BLDSHP+GLSSPC+NFLOOR+BASEMNT+ATTIC+RENOV+RFCOOL+WINTYP+TINT+REFL+SKYLT+AWN+DAYLTP+YRCONC+FEDFAC+NOCC+WKHRS+NWKER+SCHED')
+
+formula_w_ht <- as.formula('HTEUI ~ FLCEILHT+WLCNS+RFCNS+RFTILT+BLDSHP+GLSSPC+NFLOOR+BASEMNT+ATTIC+RENOV+RFCOOL+WINTYP+TINT+REFL+SKYLT+AWN+DAYLTP+YRCONC+FEDFAC+NOCC+WKHRS+NWKER+SCHED')
+
+formula_w_cl <- as.formula('CLEUI ~ FLCEILHT+WLCNS+RFCNS+RFTILT+BLDSHP+GLSSPC+NFLOOR+BASEMNT+ATTIC+RENOV+RFCOOL+WINTYP+TINT+REFL+SKYLT+AWN+DAYLTP+YRCONC+FEDFAC+NOCC+WKHRS+NWKER+SCHED')
+
+formula_w_vn <- as.formula('VNEUI ~ FLCEILHT+WLCNS+RFCNS+RFTILT+BLDSHP+GLSSPC+NFLOOR+BASEMNT+ATTIC+RENOV+RFCOOL+WINTYP+TINT+REFL+SKYLT+AWN+DAYLTP+YRCONC+FEDFAC+NOCC+WKHRS+NWKER+SCHED')
+
+formula_w_lt <- as.formula('LTEUI ~ FLCEILHT+WLCNS+RFCNS+RFTILT+BLDSHP+GLSSPC+NFLOOR+BASEMNT+ATTIC+RENOV+RFCOOL+WINTYP+TINT+REFL+SKYLT+AWN+DAYLTP+YRCONC+FEDFAC+NOCC+WKHRS+NWKER+SCHED')
+
+formula_w_pc <- as.formula('PCEUI ~ FLCEILHT+WLCNS+RFCNS+RFTILT+BLDSHP+GLSSPC+NFLOOR+BASEMNT+ATTIC+RENOV+RFCOOL+WINTYP+TINT+REFL+SKYLT+AWN+DAYLTP+YRCONC+FEDFAC+NOCC+WKHRS+NWKER+SCHED')
+```
+
+```{r}
+design_w <- svydesign(ids = ~1, data = df_w, weights = ~FINALWT)
+ols_w_tot <- svyglm(formula_w_tot, design = design_w)
+ols_w_ht <- svyglm(formula_w_ht, design = design_w)
+ols_w_cl <- svyglm(formula_w_cl, design = design_w)
+ols_w_vn <- svyglm(formula_w_vn, design = design_w)
+ols_w_lt <- svyglm(formula_w_lt, design = design_w)
+ols_w_pc <- svyglm(formula_w_pc, design = design_w)
+```
+
+```{r}
+ols_w_list <- list()
+ols_w_list[[1]] <- ols_w_tot
+ols_w_list[[2]] <- ols_w_ht
+ols_w_list[[3]] <- ols_w_cl
+ols_w_list[[4]] <- ols_w_vn
+ols_w_list[[5]] <- ols_w_lt
+ols_w_list[[6]] <- ols_w_pc
+```
+
+### 1. Coefficients
+
+```{r}
+coef_flceilht_w_list <- list()
+for (ols in ols_w_list){
+  coef_flceilht <- coef(summary(ols))["FLCEILHT", "Estimate"]
+  coef_flceilht_w_list[[length(coef_flceilht_w_list)+1]] <- coef_flceilht
+}
+```
+
+```{r}
+coef_flceilht_w_list
+```
+
+### 2. Significance: p-value
+
+```{r}
+p_flceilht_w_list <- list()
+for (ols in ols_w_list){
+  p_flceilht <- coef(summary(ols))["FLCEILHT", "Pr(>|t|)"]
+  p_flceilht_w_list[[length(p_flceilht_w_list)+1]] <- p_flceilht
+}
+```
+
+```{r}
+p_flceilht_w_list
+```
+
+### 3. Goodness of fit
+
+Pseudo-R2
+
+```{r}
+# construct null model
+nullols_w_tot <- svyglm(formula = TOTEUI ~ 1, design = design_w)
+nullols_w_ht <- svyglm(formula = HTEUI ~ 1, design = design_w)
+nullols_w_cl <- svyglm(formula = CLEUI ~ 1, design = design_w)
+nullols_w_vn <- svyglm(formula = VNEUI ~ 1, design = design_w)
+nullols_w_lt <- svyglm(formula = LTEUI ~ 1, design = design_w)
+nullols_w_pc <- svyglm(formula = PCEUI ~ 1, design = design_w)
+
+nullols_w_list <- list()
+nullols_w_list[[1]] <- nullols_w_tot
+nullols_w_list[[2]] <- nullols_w_ht
+nullols_w_list[[3]] <- nullols_w_cl
+nullols_w_list[[4]] <- nullols_w_vn
+nullols_w_list[[5]] <- nullols_w_lt
+nullols_w_list[[6]] <- nullols_w_pc
+```
+
+```{r}
+r2_w_list <- list()
+for (i in 1:length(ols_w_list)){
+  ols <- ols_w_list[[i]]
+  nullols <- nullols_w_list[[i]]
+  r2 <- 1 - deviance(ols) / deviance(nullols)
+  r2_w_list[[length(r2_w_list)+1]] <- r2
+}
+```
+
+```{r}
+r2_w_list
+```
+
+```{r}
+
+```
+
+## iii) check OLS assumptions on residual
+
+```{r}
+# Non-Linearity: check if mean function is around 0 line
+plot(ols_w_tot$fitted.values, ols_w_tot$residuals, xlab='Fitted', ylab='Residuals', xlim = c(0,200), ylim = c(-200, 200))
+abline(h=0)
+```
+
+```{r}
+# Heteroscedacity: check if variability of residuals around 0 mean function is constant
+plot(ols_w_tot$fitted.values, abs(ols_w_tot$residuals), xlab='Fitted', ylab='|Residuals|', xlim=c(0,200), ylim=c(0,200))
+abline(h=0)
+```
+
+```{r}
+data1 <- data.frame(
+  Fitted = ols_w_tot$fitted.values,
+  Residuals = ols_w_tot$residuals
+)
+
+p1 <- ggplot(data1, aes(x = Fitted, y = Residuals)) +
+  geom_point() + 
+  geom_hline(yintercept = 0) +
+  xlim(0, 200) +
+  ylim(-200, 200) +
+  xlab("Fitted") +
+  ylab("Residuals")
+
+
+data2 <- data.frame(
+  Fitted = ols_w_tot$fitted.values,
+  AbsResiduals = abs(ols_w_tot$residuals)
+)
+
+p2 <- ggplot(data2, aes(x = Fitted, y = AbsResiduals)) +
+  geom_point() + 
+  geom_hline(yintercept = 0) +
+  xlim(0, 200) +
+  ylim(0, 200) +
+  xlab("Fitted") +
+  ylab("|Residuals|")
+
+grid.arrange(p1, p2, ncol = 2)
+```
+
+```{r}
+# check normality: check if the points on QQ plot follows straight line
+qqnorm(ols_w_tot$residuals, ylab='Residuals')
+qqline(ols_w_tot$residuals)
+```
+
+heavy-tailed distrubition
+
+```{r}
+# check normality: Shapiro-Wilk test
+shapiro.test(ols_w_tot$residuals)
+```
+
+reject normality
+
+Need to use more robust regression (M-estimation)
+
+## iv) check collinearity
+
+```{r}
+# check Variance Inflation Factor
+vif(ols_w_ht)
+```
+
+None of the variables have GVIF\^(1/(2\*Df)) \>5, thus we can say there is no significant collinearity.
+
+## v) fit Robust Linear Regression using Huber's Method
+
+### 1. Stratified on Climate Zone
+
+```{r}
+# Wrap up in function:
+ghuber_fit <- function(dataf){
+  ghuber_w_tot <- rlm(formula_w_tot, data=dataf, method = "M", weights = FINALWT,maxit = 100000)
+  ghuber_w_ht <- rlm(formula_w_ht,data=dataf, method = "M", weights = FINALWT,maxit = 100000)
+  ghuber_w_cl <- rlm(formula_w_cl,data=dataf, method = "M", weights = FINALWT,maxit = 100000)
+  ghuber_w_vn <- rlm(formula_w_vn,data=dataf, method = "M", weights = FINALWT,maxit = 100000)
+  ghuber_w_lt <- rlm(formula_w_lt,data=dataf, method = "M", weights = FINALWT,maxit = 100000)
+  ghuber_w_pc <- rlm(formula_w_pc,data=dataf, method = "M", weights = FINALWT,maxit = 100000)
+  
+  ghuber_w_list <- list()
+  ghuber_w_list[[1]] <- ghuber_w_tot
+  ghuber_w_list[[2]] <- ghuber_w_ht
+  ghuber_w_list[[3]] <- ghuber_w_cl
+  ghuber_w_list[[4]] <- ghuber_w_vn
+  ghuber_w_list[[5]] <- ghuber_w_lt
+  ghuber_w_list[[6]] <- ghuber_w_pc
+  
+  ghcoef_flceilht_w_list <- list()
+  for (gh in ghuber_w_list){
+    ghcoef_flceilht <- coef(summary(gh))["FLCEILHT", "Value"]
+    ghcoef_flceilht_w_list[[length(ghcoef_flceilht_w_list)+1]] <- ghcoef_flceilht
+  }
+  
+  ght_flceilht_w_list <- list()
+  for (gh in ghuber_w_list){
+    ght_flceilht <- coef(summary(gh))["FLCEILHT", "t value"]
+    ght_flceilht_w_list[[length(ght_flceilht_w_list)+1]] <- ght_flceilht
+  }
+  
+  result_list <- list()
+  result_list[['coef']] <- ghcoef_flceilht_w_list
+  result_list[['t value']] <- ght_flceilht_w_list
+
+  return (result_list)
+}
+```
+
+```{r}
+sub_clm_ghuber <- lapply(sub_clm_list, ghuber_fit)
+print('finished')
+```
+
+```{r}
+sub_clm_ghuber[[1]][[2]]
+```
+
+```{r}
+sub_clm_ghuber[[2]][[2]]
+```
+
+```{r}
+sub_clm_ghuber[[3]][[2]]
+```
+
+```{r}
+sub_clm_ghuber[[4]][[2]]
+```
+
+```{r}
+sub_clm_ghuber[[5]][[2]]
+```
+
+### 2. Unstratified
+
+```{r}
+ghuber_w_tot <- rlm(formula_w_tot, data=df_w, method = "M", weights = FINALWT,maxit = 50)
+ghuber_w_ht <- rlm(formula_w_ht,data=df_w, method = "M", weights = FINALWT,maxit = 50)
+ghuber_w_cl <- rlm(formula_w_cl,data=df_w, method = "M", weights = FINALWT,maxit = 50)
+ghuber_w_vn <- rlm(formula_w_vn,data=df_w, method = "M", weights = FINALWT,maxit = 50)
+ghuber_w_lt <- rlm(formula_w_lt,data=df_w, method = "M", weights = FINALWT,maxit = 50)
+ghuber_w_pc <- rlm(formula_w_pc,data=df_w, method = "M", weights = FINALWT,maxit = 50)
+```
+
+```{r}
+ghuber_w_list <- list()
+ghuber_w_list[[1]] <- ghuber_w_tot
+ghuber_w_list[[2]] <- ghuber_w_ht
+ghuber_w_list[[3]] <- ghuber_w_cl
+ghuber_w_list[[4]] <- ghuber_w_vn
+ghuber_w_list[[5]] <- ghuber_w_lt
+ghuber_w_list[[6]] <- ghuber_w_pc
+
+ghcoef_flceilht_w_list <- list()
+for (gh in ghuber_w_list){
+  ghcoef_flceilht <- coef(summary(gh))["FLCEILHT", "Value"]
+  ghcoef_flceilht_w_list[[length(ghcoef_flceilht_w_list)+1]] <- ghcoef_flceilht
+}
+
+ght_flceilht_w_list <- list()
+for (gh in ghuber_w_list){
+  ght_flceilht <- coef(summary(gh))["FLCEILHT", "t value"]
+  ght_flceilht_w_list[[length(ght_flceilht_w_list)+1]] <- ght_flceilht
+}
+```
+
+```{r}
+ghcoef_flceilht_w_list
+```
+
+```{r}
+# abs(t-value) >2 is significant
+ght_flceilht_w_list
+```
+
+all significant
+
+```{r}
+# construct null model
+nullghuber_w_tot <- rlm(formula = TOTEUI ~ 1, data=df_w, method = "M", weights = FINALWT,maxit = 50)
+nullghuber_w_ht <- rlm(formula = HTEUI ~ 1,data=df_w, method = "M", weights = FINALWT,maxit = 50)
+nullghuber_w_cl <- rlm(formula = CLEUI ~ 1,data=df_w, method = "M", weights = FINALWT,maxit = 50)
+nullghuber_w_vn <- rlm(formula = VNEUI ~ 1,data=df_w, method = "M", weights = FINALWT,maxit = 50)
+nullghuber_w_lt <- rlm(formula = LTEUI ~ 1,data=df_w, method = "M", weights = FINALWT,maxit = 50)
+nullghuber_w_pc <- rlm(formula = PCEUI ~ 1,data=df_w, method = "M", weights = FINALWT,maxit = 50)
+
+nullghuber_w_list <- list()
+nullghuber_w_list[[1]] <- nullghuber_w_tot
+nullghuber_w_list[[2]] <- nullghuber_w_ht
+nullghuber_w_list[[3]] <- nullghuber_w_cl
+nullghuber_w_list[[4]] <- nullghuber_w_vn
+nullghuber_w_list[[5]] <- nullghuber_w_lt
+nullghuber_w_list[[6]] <- nullghuber_w_pc
+
+r2_w_list <- list()
+for (i in 1:length(ghuber_w_list)){
+  ghuber <- ghuber_w_list[[i]]
+  nullghuber <- nullghuber_w_list[[i]]
+  r2 <- 1 - deviance(ghuber) / deviance(nullghuber)
+  r2_w_list[[length(r2_w_list)+1]] <- r2
+}
+```
+
+```{r}
+r2_w_list
+```
